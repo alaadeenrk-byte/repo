@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Agency Operating System — Complete Framework</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c0c0e;--surface:#111113;--surface2:#161618;
+  --border:#1c1c1e;--border2:#252527;--text:#e8e2d9;
+  --muted:#5a5a5a;--dim:#2e2e2e;--soft:#a09488;
+  --mono:'Courier New',Courier,monospace;
+  --serif:Georgia,'Times New Roman',serif;
+  --accent:#C8A96E;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--serif);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}
+a{color:inherit;text-decoration:none}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#252525;border-radius:2px}
+
+/* ── HEADER ── */
+#hdr{position:sticky;top:0;z-index:400;background:rgba(12,12,14,0.97);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;gap:12px}
+#brand{display:flex;flex-direction:column;gap:1px;min-width:0}
+#brand-tag{font-family:var(--mono);font-size:7px;letter-spacing:4px;color:#3a3a3a;text-transform:uppercase}
+#brand-name{font-size:15px;color:#ccc;letter-spacing:.3px;white-space:nowrap}
+#hdr-nav{display:flex;gap:4px;flex-wrap:nowrap}
+.hdr-tab{padding:5px 13px;border-radius:2px;border:1px solid var(--border2);background:transparent;color:#444;font-family:var(--mono);font-size:9px;letter-spacing:3px;transition:all .18s;white-space:nowrap}
+.hdr-tab.active{color:var(--bg);font-weight:700}
+.hdr-tab:hover:not(.active){border-color:#333;color:#777}
+#hmb{display:none;padding:7px 12px;border:1px solid var(--border2);background:transparent;color:#666;font-family:var(--mono);font-size:12px;border-radius:2px;transition:all .18s;flex-shrink:0}
+#mob-drop{display:none;position:fixed;top:58px;left:0;right:0;z-index:350;background:#111;border-bottom:2px solid var(--accent);box-shadow:0 20px 60px rgba(0,0,0,.7)}
+#mob-drop.open{display:block}
+.drop-item{width:100%;padding:17px 20px;background:transparent;border:none;border-left:3px solid transparent;color:#555;font-family:var(--mono);font-size:12px;letter-spacing:2px;text-align:left;display:flex;align-items:center;gap:14px;transition:all .15s}
+.drop-item.active{background:rgba(255,255,255,.04)}
+
+/* ── LAYOUT ── */
+#app{display:flex;min-height:calc(100vh - 58px)}
+#sidebar{width:220px;flex-shrink:0;border-right:1px solid var(--border);position:sticky;top:58px;height:calc(100vh - 58px);overflow-y:auto;padding:24px 0;display:flex;flex-direction:column;gap:0}
+#sidebar-inner{display:flex;flex-direction:column;gap:0;flex:1}
+.sb-section{padding:0 16px 16px}
+.sb-label{font-family:var(--mono);font-size:7px;letter-spacing:4px;color:#2e2e2e;text-transform:uppercase;padding:12px 16px 8px;border-top:1px solid var(--border)}
+.sb-phase-btn{width:100%;padding:10px 16px;background:transparent;border:none;border-left:3px solid transparent;color:#444;font-family:var(--mono);font-size:9px;letter-spacing:2px;text-align:left;display:flex;align-items:center;gap:10px;transition:all .15s}
+.sb-phase-btn.active{background:rgba(255,255,255,.03)}
+.sb-phase-btn:hover:not(.active){color:#777}
+.sb-num{font-size:8px;flex-shrink:0}
+.sb-track-btn{width:100%;padding:7px 16px;background:transparent;border:none;color:#3a3a3a;font-family:var(--mono);font-size:8px;letter-spacing:2px;text-align:left;display:flex;align-items:center;gap:8px;transition:all .15s}
+.sb-track-btn.active{color:#aaa}
+.sb-track-btn:hover:not(.active){color:#666}
+#gloss-btn{margin:16px;padding:9px 12px;border:1px solid var(--border2);background:transparent;color:#444;font-family:var(--mono);font-size:8px;letter-spacing:3px;border-radius:2px;transition:all .18s;text-align:center}
+#gloss-btn:hover{border-color:#444;color:#888}
+
+/* ── MAIN ── */
+#main{flex:1;min-width:0;overflow-x:hidden}
+
+/* ── HERO / OVERVIEW ── */
+#hero-section{padding:52px 44px 40px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+#hero-bg-text{position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:180px;font-family:var(--mono);font-weight:bold;color:#fff;opacity:.018;user-select:none;pointer-events:none;line-height:1;white-space:nowrap}
+.hero-eyebrow{font-family:var(--mono);font-size:8px;letter-spacing:5px;color:#333;text-transform:uppercase;margin-bottom:14px}
+.hero-title{font-size:48px;font-weight:normal;letter-spacing:-1.5px;line-height:1;margin-bottom:14px;color:#ddd}
+.hero-sub{font-size:15px;color:#555;font-style:italic;max-width:520px;line-height:1.7;margin-bottom:36px}
+.pipeline-visual{display:flex;align-items:stretch;gap:0;overflow-x:auto;padding-bottom:4px}
+.pv-phase{flex:1;min-width:130px;border:1px solid var(--border);padding:16px 14px;position:relative;transition:border-color .2s;cursor:pointer}
+.pv-phase:not(:last-child){border-right:none}
+.pv-phase:hover{background:rgba(255,255,255,.02)}
+.pv-num{font-family:var(--mono);font-size:8px;letter-spacing:3px;margin-bottom:6px}
+.pv-name{font-family:var(--mono);font-size:11px;font-weight:bold;margin-bottom:8px}
+.pv-tagline{font-size:10px;color:#3a3a3a;font-style:italic;line-height:1.5;margin-bottom:10px}
+.pv-flow{display:flex;gap:4px;font-family:var(--mono);font-size:7px;letter-spacing:2px}
+.pv-int{color:#3a3a3a;padding:3px 6px;border:1px solid #222;border-radius:1px}
+.pv-arr{color:#2a2a2a;align-self:center}
+.pv-ext{padding:3px 6px;border-radius:1px;font-weight:bold}
+
+/* ── PHASE SECTION ── */
+.phase-section{border-bottom:1px solid var(--border)}
+.phase-hero{padding:44px 44px 28px;position:relative;overflow:hidden;border-bottom:1px solid var(--border)}
+.phase-ghost{position:absolute;right:44px;top:50%;transform:translateY(-50%);font-size:150px;font-family:var(--mono);font-weight:bold;opacity:.05;user-select:none;pointer-events:none;line-height:1}
+.phase-eyebrow{font-family:var(--mono);font-size:8px;letter-spacing:4px;margin-bottom:10px;transition:color .3s}
+.phase-name{font-size:52px;font-weight:normal;letter-spacing:-1.5px;line-height:1;margin-bottom:10px}
+.phase-tagline{font-size:15px;color:#555;font-style:italic;max-width:500px;margin-bottom:16px}
+.phase-meaning{font-size:13.5px;color:#6a6460;line-height:1.8;max-width:640px;padding:16px;border-left:2px solid var(--border2);background:rgba(255,255,255,.015);border-radius:0 4px 4px 0}
+.prog-bar{display:flex;gap:4px;margin-top:20px}
+.prog-seg{flex:1;height:2px;border-radius:2px;background:var(--border);cursor:pointer;transition:all .3s;opacity:.4}
+.prog-seg.done{opacity:1}
+
+/* ── TRACK TABS ── */
+.track-tabs{display:flex;border-bottom:1px solid var(--border)}
+.track-tab{flex:1;padding:13px 24px;border:none;background:transparent;color:#3a3a3a;font-family:var(--mono);font-size:10px;letter-spacing:2px;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .18s;border-bottom:2px solid transparent;margin-bottom:-1px}
+.track-tab.active{color:var(--text)}
+.track-tab:hover:not(.active){color:#666}
+
+/* ── TRACK CONTENT ── */
+.track-content{display:none;padding:28px 44px}
+.track-content.active{display:block}
+.track-intro-bar{display:flex;align-items:flex-start;gap:12px;margin-bottom:24px;padding:12px 16px;border:1px solid var(--border);border-radius:3px;background:rgba(255,255,255,.012)}
+.track-intro-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.track-intro-text{font-size:13px;color:#5a5a5a;line-height:1.7;font-style:italic}
+
+/* ── STEPS ── */
+.steps-label{font-family:var(--mono);font-size:7px;letter-spacing:4px;color:#2a2a2a;text-transform:uppercase;margin-bottom:12px}
+.step-card{border:1px solid var(--border);border-radius:3px;margin-bottom:8px;overflow:hidden;transition:border-color .22s}
+.step-hdr{width:100%;padding:18px 20px;background:transparent;border:none;display:flex;align-items:center;justify-content:space-between;text-align:left;gap:12px;transition:background .2s}
+.step-card.open .step-hdr{background:rgba(255,255,255,.02)}
+.step-hdr-left{display:flex;align-items:center;gap:16px;flex:1}
+.step-tag{font-family:var(--mono);font-size:7px;letter-spacing:3px;flex-shrink:0;transition:color .3s}
+.step-title{font-size:16px;color:#ddd4c8;line-height:1.3}
+.step-plus{font-family:var(--mono);font-size:20px;flex-shrink:0;line-height:1;transition:transform .22s,color .3s}
+.step-card.open .step-plus{transform:rotate(45deg)}
+.step-body{display:none;border-top:1px solid var(--border);padding:20px 20px 24px;animation:sldn .2s ease}
+.step-card.open .step-body{display:block}
+@keyframes sldn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.step-insight{font-size:13.5px;color:#6a6460;line-height:1.8;margin-bottom:18px;padding:14px 16px;border-left:2px solid var(--border2);background:rgba(255,255,255,.015);border-radius:0 3px 3px 0;font-style:italic}
+.step-details{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.step-detail{display:flex;gap:14px;align-items:flex-start}
+.detail-num{font-family:var(--mono);font-size:7px;margin-top:4px;min-width:16px;flex-shrink:0;transition:color .3s}
+.detail-txt{font-size:13px;color:#8c8078;line-height:1.75}
+.abbrs-block{background:rgba(255,255,255,.012);border:1px solid var(--border);border-radius:3px;padding:14px 16px}
+.abbrs-label{font-family:var(--mono);font-size:7px;letter-spacing:4px;color:#2e2e2e;text-transform:uppercase;margin-bottom:10px}
+.abbr-item{margin-bottom:8px;font-size:12px;line-height:1.65}
+.abbr-term{font-family:var(--mono);color:var(--accent);font-size:10px;letter-spacing:1px;margin-right:8px}
+.abbr-def{color:#605850}
+
+/* ── OUTPUTS ── */
+.outputs-section{margin-top:32px;padding-top:28px;border-top:1px solid var(--border)}
+.outputs-header{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.outputs-title{font-family:var(--mono);font-size:8px;letter-spacing:4px;color:#333;text-transform:uppercase}
+.outputs-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.output-col{border:1px solid var(--border);border-radius:4px;overflow:hidden}
+.output-col-hdr{padding:14px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.output-col-icon{font-size:14px}
+.output-col-title{font-family:var(--mono);font-size:9px;letter-spacing:3px}
+.output-col-sub{font-family:var(--mono);font-size:7px;color:#333;letter-spacing:2px;margin-left:auto}
+.output-col-body{padding:16px 18px}
+.int-col .output-col-hdr{background:#0f1011;color:#444}
+.int-col .output-col-title{color:#444}
+.ext-col .output-col-hdr{color:var(--bg);font-weight:bold}
+.int-item{font-size:12px;color:#4a4a4a;line-height:1.6;padding:5px 0;border-bottom:1px solid #161616;display:flex;gap:8px;align-items:flex-start}
+.int-item:last-child{border-bottom:none}
+.int-dot{color:#2a2a2a;flex-shrink:0;margin-top:3px;font-size:8px}
+.ext-item{padding:8px 10px;border-radius:3px;margin-bottom:6px;background:rgba(255,255,255,.025)}
+.ext-item:last-child{margin-bottom:0}
+.ext-item-title{font-size:12px;font-weight:bold;color:#ddd4c8;margin-bottom:3px;display:flex;align-items:center;gap:6px}
+.ext-item-title::before{content:'→';font-family:var(--mono);font-size:9px;opacity:.6;flex-shrink:0}
+.ext-item-desc{font-size:11px;color:#5a5050;line-height:1.6}
+
+/* ── CONVERGENCE ── */
+.convergence-section{margin-top:28px;padding:24px;border:1px solid var(--border);border-radius:4px;background:linear-gradient(135deg,rgba(255,255,255,.02) 0%,transparent 100%);position:relative;overflow:hidden}
+.conv-bg{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:60px;opacity:.04;user-select:none;pointer-events:none}
+.conv-label{font-family:var(--mono);font-size:7px;letter-spacing:4px;color:#2e2e2e;text-transform:uppercase;margin-bottom:10px}
+.conv-title{font-size:14px;color:#6a6460;margin-bottom:8px;font-style:italic}
+.conv-text{font-size:13px;color:#5a5050;line-height:1.85}
+
+/* ── MASTER PRINCIPLE ── */
+#master{padding:52px 44px;border-top:1px solid var(--border);background:var(--surface)}
+.master-label{font-family:var(--mono);font-size:7px;letter-spacing:5px;color:#2e2e2e;text-transform:uppercase;margin-bottom:16px}
+.master-title{font-size:28px;font-weight:normal;letter-spacing:-.5px;margin-bottom:20px;color:#bbb}
+.master-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px}
+.master-card{padding:16px;border:1px solid var(--border);border-radius:3px}
+.master-card-num{font-family:var(--mono);font-size:8px;letter-spacing:3px;margin-bottom:8px}
+.master-card-title{font-size:13px;color:#888;margin-bottom:6px;font-weight:bold}
+.master-card-desc{font-size:11px;color:#3a3a3a;line-height:1.65}
+.master-principle{font-size:14px;color:#5a5050;line-height:1.9;max-width:720px;padding:20px;border-left:2px solid var(--border2);background:rgba(255,255,255,.012)}
+
+/* ── GLOSSARY MODAL ── */
+#gloss-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;backdrop-filter:blur(8px)}
+#gloss-overlay.open{display:flex;align-items:center;justify-content:center}
+#gloss-modal{background:#111;border:1px solid var(--border2);border-radius:6px;width:90%;max-width:720px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden}
+#gloss-hdr{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+#gloss-title{font-family:var(--mono);font-size:10px;letter-spacing:4px;color:#666}
+#gloss-close{background:transparent;border:1px solid var(--border2);color:#555;padding:5px 10px;border-radius:2px;font-family:var(--mono);font-size:10px;transition:all .15s}
+#gloss-close:hover{border-color:#555;color:#aaa}
+#gloss-body{overflow-y:auto;padding:20px 24px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.gloss-item{padding:10px 12px;border:1px solid var(--border);border-radius:3px}
+.gloss-item-term{font-family:var(--mono);font-size:10px;letter-spacing:1px;margin-bottom:4px}
+.gloss-item-def{font-size:11px;color:#545050;line-height:1.6}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1100px){
+  #sidebar{display:none}
+  .track-content{padding:22px 28px}
+  .phase-hero{padding:36px 28px 22px}
+  #hero-section{padding:40px 28px 32px}
+  #master{padding:40px 28px}
+  .outputs-grid{grid-template-columns:1fr}
+  .master-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:720px){
+  #hdr{padding:0 16px;height:54px}
+  #hdr-nav{display:none}
+  #hmb{display:flex;align-items:center}
+  #mob-drop{top:54px}
+  .phase-hero{padding:24px 16px 18px}
+  .phase-ghost{font-size:90px;right:-4px}
+  .phase-name{font-size:32px}
+  .phase-tagline{font-size:13px}
+  .track-content{padding:16px}
+  .track-tab{padding:12px 12px;font-size:9px;letter-spacing:1px}
+  .step-hdr{padding:15px 14px}
+  .step-hdr-left{flex-direction:column;gap:4px;align-items:flex-start}
+  .step-body{padding:16px 14px 20px}
+  .step-title{font-size:14px}
+  .outputs-grid{grid-template-columns:1fr}
+  #hero-section{padding:28px 16px 24px}
+  .hero-title{font-size:32px}
+  .pipeline-visual{flex-direction:column;gap:8px}
+  .pv-phase{border-right:1px solid var(--border) !important}
+  #master{padding:28px 16px}
+  .master-grid{grid-template-columns:1fr}
+  #gloss-body{grid-template-columns:1fr}
+  .master-title{font-size:22px}
+}
+@media(max-width:480px){
+  .phase-name{font-size:28px}
+  .hero-title{font-size:26px}
+  .outputs-section{margin-top:20px;padding-top:18px}
+  .convergence-section{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="hdr">
+  <div id="brand">
+    <div id="brand-tag">Agency Operating System</div>
+    <div id="brand-name">Foundation → Scale</div>
+  </div>
+  <nav id="hdr-nav"></nav>
+  <button id="hmb" onclick="toggleMob()">☰</button>
+</header>
+
+<!-- MOBILE DROPDOWN -->
+<div id="mob-drop"></div>
+
+<!-- GLOSSARY OVERLAY -->
+<div id="gloss-overlay" onclick="closeGloss(event)">
+  <div id="gloss-modal">
+    <div id="gloss-hdr">
+      <div id="gloss-title">COMPLETE GLOSSARY — ALL ABBREVIATIONS</div>
+      <button id="gloss-close" onclick="closeGlossBtn()">✕ CLOSE</button>
+    </div>
+    <div id="gloss-body"></div>
+  </div>
+</div>
+
+<div id="app">
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div id="sidebar-inner"></div>
+    <button id="gloss-btn" onclick="openGloss()">⬡ GLOSSARY</button>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main id="main">
+
+    <!-- HERO -->
+    <section id="hero-section">
+      <div id="hero-bg-text">DNA</div>
+      <div class="hero-eyebrow">Senior Consulting Framework · Complete Guide</div>
+      <h1 class="hero-title">The Agency<br>Operating System</h1>
+      <p class="hero-sub">A complete guide, explainer, roadmap, and workflow pipeline — from the first discovery interview to a scaled institution. Every phase. Every track. Every deliverable. Every abbreviation defined.</p>
+      <div class="pipeline-visual" id="pipeline-visual"></div>
+    </section>
+
+    <!-- PHASE SECTIONS -->
+    <div id="phase-sections"></div>
+
+    <!-- MASTER PRINCIPLE -->
+    <section id="master">
+      <div class="master-label">The Master Principle</div>
+      <h2 class="master-title">The Internal Database Is the Brain.<br>The External Deliverables Are the Hands.</h2>
+      <div class="master-grid" id="master-grid"></div>
+      <div class="master-principle">
+        The internal database accumulates intelligence, records decisions and their rationale, and holds the evidence that justifies every external deliverable. Without it, deliverables are decoration — beautiful documents with no intellectual foundation you can defend, iterate, or learn from.<br><br>
+        At <strong style="color:#C8A96E">Foundation</strong>, the database is mostly research and the deliverables are strategy and identity. At <strong style="color:#7EB8A4">Launch</strong>, the database fills with behavioral data and deliverables become operational systems. At <strong style="color:#9B8EC4">Growth</strong>, the database becomes a learning machine and deliverables become compounding engines. At <strong style="color:#D4756B">Scale</strong>, the database becomes institutional memory and deliverables become infrastructure — things that outlast any individual and enable the organization to operate independently of the people who built it.<br><br>
+        Every document, every system, every data point has a home and a purpose. Nothing is produced for its own sake. Everything feeds the next thing. That is the DNA of a strong universal agency.
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   DATA — ALL CONTENT
+═══════════════════════════════════════════════════ */
+const D = [
+  {
+    id:'foundation',number:'01',label:'FOUNDATION',
+    color:'#C8A96E',tagline:'Build it right before you build it big',
+    meaning:'Most founders skip this phase because they are excited to build. That is the primary reason businesses fail — not bad execution, but executing the wrong thing with confidence. Foundation replaces assumption with evidence, conviction with research, and enthusiasm with a documented, falsifiable plan that can survive contact with reality. Every hour invested here saves ten hours of expensive course-correction later.',
+    tracks:[
+      {
+        name:'Strategist',icon:'◈',
+        intro:'The strategist track builds the intellectual and commercial foundation — the evidence base, the economic model, and the positioning that all future execution depends on. Without this, every downstream decision is built on sand.',
+        steps:[
+          {tag:'STEP 01',title:'Discovery & Intelligence',
+           insight:'Most founders believe they know their market. Almost none do at the depth required for strategic clarity. This step replaces assumptions with evidence through three parallel lenses: the founder\'s own constraints and vision, the quantified size of the opportunity, and the behavioral reality of the customer. Senior consultants build market sizing bottom-up, not top-down — not "the market is $50B so 1% is $500M" but "there are 200,000 barbershops, 40% have no website, we can reach 5,000 in year one at $150/month — that is $9M ARR."',
+           details:['Deep founder interview — vision, motivations, constraints, risk appetite','Market sizing (TAM / SAM / SOM) with bottom-up validation — not top-down guessing','Competitor audit: positioning maps, pricing teardown, SWOT for each named competitor','Customer archetype research — Jobs-to-Be-Done framework applied to real conversations','Pain point hierarchy: rank by frequency × severity × willingness to pay'],
+           abbrs:[
+             {term:'TAM',def:'Total Addressable Market — the entire universe of potential revenue if you captured 100% of every possible customer globally. The ceiling of imagination, not a planning number.'},
+             {term:'SAM',def:'Serviceable Addressable Market — the portion of the TAM reachable with your current business model, geography, and product. The realistic competitive arena.'},
+             {term:'SOM',def:'Serviceable Obtainable Market — the realistic slice of the SAM you can capture in 2–3 years with your actual resources. The only number that drives real planning.'},
+             {term:'SWOT',def:'Strengths, Weaknesses, Opportunities, Threats — a structured four-quadrant competitive assessment. Senior SWOT is brutal and specific, not optimistic and generic.'},
+             {term:'JTBD',def:'Jobs-to-Be-Done — people don\'t buy products, they hire them to do a job in their life or work. The framework shifts the question from "what do customers want?" to "what job are they hiring this product to do and what were they hiring before?"'},
+             {term:'ARR',def:'Annual Recurring Revenue — the annualized value of all active subscriptions. The primary health metric for subscription businesses.'}
+           ]
+          },
+          {tag:'STEP 02',title:'Brand Architecture',
+           insight:'Brand is not a logo. Brand is the sum of associations, feelings, and expectations that exist in someone\'s mind when they hear your name. Architecture is the structural system that makes those associations consistent, defensible, and compound over time rather than drift into noise. The differentiation ladder is the senior insight here: features sit at the bottom and can be copied in 90 days; identity sits at the top and takes years to displace.',
+           details:['Brand positioning statement: For [who], [brand] is the [category] that [benefit] because [proof]','Name generation: memorable, available, phonetically clean, domain-friendly, and scalable beyond the first product','Tone of voice system: 3 personality pillars with explicit do/don\'t examples for consistency','Brand promise vs. brand story — internal operational commitment vs. external emotional narrative','Competitive differentiation ladder: feature → benefit → value → identity (climb as high as possible)'],
+           abbrs:[]
+          },
+          {tag:'STEP 03',title:'Business Model Design',
+           insight:'Strategy without economics is philosophy. This step translates vision into numbers — the specific unit-level math that determines whether the business can sustain itself and at what scale. Every pricing decision, every revenue model choice, every GTM motion has downstream consequences on unit economics that must be modeled before any commitment is made. The golden rule: LTV must be at least 3× CAC or you are building a machine that destroys money with scale.',
+           details:['Revenue model selection (subscription, transactional, marketplace, hybrid) with explicit rationale','Unit economics modeling: CAC, LTV, payback period, gross margin targets — with scenario analysis','Pricing architecture: anchor tier → hero tier → expansion tier — three layers, not one flat price','Go-to-market motion: PLG, SLG, or blended — selection must match price point and buying process complexity','First 90-day revenue hypothesis with falsifiable assumptions written down before execution begins'],
+           abbrs:[
+             {term:'CAC',def:'Customer Acquisition Cost — total money spent to acquire one paying customer: every dollar of marketing, sales salaries, ad spend, events, divided by new paying customers produced.'},
+             {term:'LTV',def:'Lifetime Value — total revenue one customer generates from signup to churn. For subscriptions: (average monthly revenue per customer) ÷ (monthly churn rate).'},
+             {term:'GTM',def:'Go-to-Market — the full strategy and motion for reaching and converting customers: channel selection, message design, sales process, and pricing.'},
+             {term:'PLG',def:'Product-Led Growth — the product itself is the primary acquisition, activation, conversion, and expansion channel. Users discover, adopt, and expand without talking to a salesperson.'},
+             {term:'SLG',def:'Sales-Led Growth — humans sell the product. Inbound: customer shows intent, salesperson closes. Outbound: salesperson proactively targets specific accounts.'},
+             {term:'MRR',def:'Monthly Recurring Revenue — the predictable monthly income from active subscriptions. The heartbeat metric of any subscription business.'}
+           ]
+          },
+          {tag:'STEP 04',title:'Validation Strategy',
+           insight:'Validation is the discipline of intellectual honesty. Every business plan is a stack of assumptions — your job is to identify which one, if wrong, kills everything, then design the cheapest possible experiment that tests it with real humans, real behavior, and real money before you build. The concierge test is one of the most powerful and least used tools: you manually deliver the service your software will eventually automate. You learn more in two weeks than in six months of building.',
+           details:['Riskiest assumption identification — what single thing must be true for this business to work?','MVP scope: minimum features to test the core hypothesis — not minimum features you\'re comfortable shipping','Concierge test design: manual delivery before building any automation — pretend to be the algorithm','Success metrics: define what "validated" looks like before the experiment starts, not after','Kill criteria: the specific, measurable outcomes that would trigger a pivot or shutdown — written in advance'],
+           abbrs:[
+             {term:'MVP',def:'Minimum Viable Product — the smallest thing you can put in front of a real customer that tests your core value hypothesis. Could be a landing page, a spreadsheet, a manual service, or a Figma prototype.'}
+           ]
+          }
+        ],
+        outputs:{
+          internal:['Founder discovery interview transcripts and synthesis','Market sizing model (TAM / SAM / SOM) with all assumptions documented','Competitor audit — positioning maps, pricing teardown, SWOT per competitor','Jobs-to-Be-Done research synthesis from customer conversations','Pain point hierarchy ranked by frequency × severity × willingness to pay','Brand positioning statement with all rejected alternatives and rationale','Business model options evaluated with pros, cons, and recommendation rationale','Unit economics model — CAC targets, LTV projections, payback period, gross margin targets','Pricing architecture options with psychological and competitive rationale','GTM motion evaluation — PLG vs SLG vs blended with decision rationale','90-day revenue hypothesis with declared assumptions and kill criteria','Validation experiment design documents','Riskiest assumption register'],
+          external:[
+            {title:'Feasibility Study',desc:'Can this business work, under what conditions, with what capital requirements and timeline constraints'},
+            {title:'Full Business Plan',desc:'Executive summary, market analysis, competitive landscape, operational plan, financial projections — the complete document'},
+            {title:'Business Model Canvas',desc:'One-page visual of the entire business logic: value proposition, channels, customer segments, revenue streams, cost structure'},
+            {title:'Pricing Strategy Document',desc:'Three-tier architecture with psychological rationale, competitive positioning, and expansion revenue logic'},
+            {title:'GTM Strategy Document',desc:'Channels, sequence, motion design, first customer acquisition plan, 90-day execution roadmap'},
+            {title:'Budget Breakdown',desc:'How much is needed, for what purpose, over what timeline — with burn rate, runway calculation, and scenario planning'},
+            {title:'One-Pager',desc:'The single distilled document that explains the entire business to anyone in under two minutes'},
+            {title:'Investor Pitch Deck',desc:'(Conditional) Traction → market → team → vision narrative with supporting data and financial model summary'},
+            {title:'Validation Plan',desc:'The concierge test or MVP experiment the client will run, with success metrics and kill criteria pre-defined'}
+          ]
+        }
+      },
+      {
+        name:'UX Engineering',icon:'◉',
+        intro:'The UX Engineering track builds the perceptual and structural foundation — the design systems, user intelligence, and online presence that will govern how every user experiences the brand and product for years to come.',
+        steps:[
+          {tag:'STEP 01',title:'User Research & Mapping',
+           insight:'Users cannot tell you what they want — they can only tell you what they have done, what frustrated them, and what outcomes they were seeking. The discipline is structuring conversations and observations to extract behavioral truth rather than hypothetical intent. The Mom Test principle: never ask "would you use this?" Ask "tell me about the last time you had this problem. What did you do? How much did it cost you?" Past behavior predicts future behavior. Hypothetical answers predict nothing.',
+           details:['5–8 discovery interviews with target persona; record sessions and synthesize systematically','Empathy map: what users Think, Feel, Say, and Do around the problem — reveals contradictions','Current-state journey map: every touchpoint, friction, emotion, and tool in the existing workflow','Opportunity areas: rank each pain point by impact × feasibility — top-right quadrant is your roadmap','Persona card creation with behavioral triggers and motivations, not just age and job title'],
+           abbrs:[
+             {term:'UX',def:'User Experience — the sum of all interactions, emotions, and perceptions a person has when using a product. Not just aesthetics — the entire felt experience of using something.'},
+             {term:'Empathy Map',def:'A 2×2 research synthesis framework: what users Think and Feel (internal), what they Say and Do (external). Reveals contradictions between stated intent and actual behavior.'}
+           ]
+          },
+          {tag:'STEP 02',title:'Information Architecture',
+           insight:'Before any screen is designed, the entire structure of the product must be mapped — every screen, every decision node, every path between them. Architecture before aesthetics. Structure before style. You cannot design a house before you know how many rooms it has, how they connect, and who lives in each one. Edge cases — anything outside the normal happy path — reveal more about your product\'s quality than the happy path ever will.',
+           details:['Sitemap / app flow diagram — every screen, every state, every decision node documented','Content inventory: what content is needed, who creates it, who owns it, when it\'s ready','Navigation taxonomy via card sorting sessions with real users — not internal assumptions','User flow diagrams for the 3 critical paths: onboarding, core action, and upgrade','Error state and edge case mapping — most competitors only design the happy path; you design reality'],
+           abbrs:[
+             {term:'IA',def:'Information Architecture — the structural design of your product: what exists, where it lives, and how people find it. The invisible skeleton beneath every visible design.'},
+             {term:'Card Sorting',def:'A UX research technique where users group and label content cards, revealing their mental model of how information should be organized — used to design navigation taxonomies.'}
+           ]
+          },
+          {tag:'STEP 03',title:'Design System Foundation',
+           insight:'A design system is not a style guide. It is the single source of truth for every visual and interactive decision in the product — a living, governed system ensuring any screen built by any designer or developer looks and feels like it belongs to the same product without requiring constant coordination. Design tokens are the critical engineering insight: they are named variables that connect design decisions to code so that changing one value updates the entire product simultaneously.',
+           details:['Logo + icon set in all formats: SVG (scalable), PNG (raster), dark and light variants for every context','Color system: primary, secondary, neutral, and semantic (green = success, red = error, yellow = warning, blue = info)','Typography scale: Display, Heading (H1–H4), Body, Caption — with precise line-height ratios for readability','Spacing system: 4px or 8px base grid — every gap, padding, and margin is a multiple. Never 13px. Never 22px.','Component library: buttons, forms, cards, modals — built in Figma design files AND as coded design tokens'],
+           abbrs:[
+             {term:'SVG',def:'Scalable Vector Graphics — a file format where images are defined by math rather than pixels, so they scale to any size without losing quality. Essential for logos and icons.'},
+             {term:'Design Token',def:'A named variable that stores a single design decision (a color, a spacing unit, a font size). The abstraction layer that connects design files to production code.'},
+             {term:'UI',def:'User Interface — the visual and interactive layer through which a user interacts with a product. Distinct from UX (the broader experience) — UI is what you see, UX is what you feel.'}
+           ]
+          },
+          {tag:'STEP 04',title:'Online Presence Build',
+           insight:'Your online presence is the first impression that investors, customers, and talent evaluate when deciding whether to trust you with their attention and money. It must communicate who you serve, what you do, and why you\'re different in under five seconds — the duration of human judgment before a browser tab is closed. Analytics must be installed before launch, not after, because you cannot retroactively measure the behavior of users who have already left.',
+           details:['Landing page hierarchy: hero → problem → solution → social proof → CTA — each section earns the right to the next','Above-fold wireframe tested for 5-second comprehension: show it for five seconds, take it away, ask three questions','SEO foundation: meta titles, OG tags, schema markup, and Core Web Vitals measured at baseline','Analytics stack: GA4 + heatmaps + session recording — installed from day one, not after launch','Waitlist / pre-launch capture: email collection with a value-exchange hook, not just "sign up for updates"'],
+           abbrs:[
+             {term:'SEO',def:'Search Engine Optimization — making your content discoverable through search engines via technical, structural, and content improvements.'},
+             {term:'CTA',def:'Call to Action — the specific action you want a user to take. Rule: one CTA per page maximum. The fewer and clearer the ask, the higher the conversion rate.'},
+             {term:'OG Tags',def:'Open Graph tags — hidden HTML code controlling how your page looks when shared on social media: the image, title, and description in the link preview card.'},
+             {term:'GA4',def:'Google Analytics 4 — Google\'s current analytics platform for tracking website and app behavior, user journeys, and conversion events.'},
+             {term:'Core Web Vitals',def:'Google\'s user experience performance metrics: LCP (Largest Contentful Paint, target <2.5s), FID (First Input Delay, target <100ms), CLS (Cumulative Layout Shift, target <0.1). Directly affect search ranking.'},
+             {term:'Schema Markup',def:'Structured data code that tells search engines what type of content your page contains (article, product, organization, event) — enabling rich search results.'}
+           ]
+          }
+        ],
+        outputs:{
+          internal:['Discovery interview recordings and synthesis notes','Empathy maps per persona','Current-state journey maps with friction and emotion documented','Opportunity area matrix — impact vs. feasibility scored per pain point','Behavioral persona cards with triggers and motivations','Full sitemap and app flow diagrams — every screen and state','Content inventory with ownership and readiness assignments','Navigation taxonomy with card sorting research results','User flow diagrams for all 3 critical paths','Edge case and error state register','Design system decision log — rationale for every visual decision made','SEO keyword research and competitive content gap analysis','Analytics instrumentation plan — every event to track, defined before build'],
+          external:[
+            {title:'Brand Identity Package',desc:'Logo suite in all formats and variants, full color system, typography system, spacing grid, tone of voice guide, brand usage guidelines document'},
+            {title:'Website — Live',desc:'Landing page built and deployed, above-fold clarity tested, SEO foundation installed, analytics instrumented from day one'},
+            {title:'Social Media Platforms',desc:'Accounts created on all relevant platforms, profiles fully configured, bio copy written, handles secured'},
+            {title:'Business Email System',desc:'Professional domain email configured, team accounts created, email signatures designed and implemented'},
+            {title:'Component Library',desc:'Core UI components in both Figma design files and coded form — buttons, forms, cards, modals, with token documentation'},
+            {title:'SEO Foundation Report',desc:'Meta tags, schema markup, Core Web Vitals baseline measurement, priority technical fixes identified and prioritized'},
+            {title:'Online Presence Audit',desc:'Everything that now exists, where it lives, how it is configured — the baseline document for all future online presence work'}
+          ]
+        }
+      }
+    ],
+    convergence:'The strategist identifies pain points through JTBD research; the UX engineer validates them through discovery interviews — they talk to the same users but ask different questions. The strategist asks about behavior and economics; the UX engineer asks about workflow and friction. The brand personality the strategist defines is translated by the UX engineer into typography, color, spacing, and motion. At Foundation, these two tracks converge into a single output: a business that knows exactly who it serves, why they should care, how it will make money, and what the product experience will feel like — before a single line of production code is written. Every subsequent phase builds on this foundation.'
+  },
+  {
+    id:'launch',number:'02',label:'LAUNCH',
+    color:'#7EB8A4',tagline:'Get to market with precision, not perfection',
+    meaning:'Launch is not a moment. It is a deliberately engineered sequence of three acts — pre-hype, soft launch, public launch — each serving a distinct purpose in the progression from "we exist" to "we have proof." The goal is not attention — attention is cheap and fades in 48 hours. The goal is proof: real people who do not know you personally exchanging real money for what you built. That proof is what separates a business from a project.',
+    tracks:[
+      {
+        name:'Strategist',icon:'◈',
+        intro:'The strategy track engineers the commercial launch machine — the playbook, the content system, the sales infrastructure, and the measurement framework that converts the Foundation\'s plan into market reality.',
+        steps:[
+          {tag:'STEP 01',title:'Launch Playbook',
+           insight:'A playbook in business is exactly what it is in sports: a documented set of plays you execute in sequence under pressure. You write it before the game, not during it, because during the game you do not have time to think — only time to execute. The "why now" story is the most underused element of any launch: it answers why this product needs to exist at this specific moment in history, which is what makes journalists write and strangers share.',
+           details:['Channel strategy: where are your first 100 customers — named specifically, not "social media" as a category','Launch narrative: the "why now" story explaining what changed in the world that makes this necessary right now','Partnership and co-launch mapping: complementary brands with overlapping audiences for mutual promotion','Launch sequence: pre-hype (waitlist + seeding) → soft launch (controlled group) → public launch (go wide)','Launch day war room: named roles, escalation paths, rollback decision criteria — written before, executed under pressure'],
+           abbrs:[
+             {term:'ICP',def:'Ideal Customer Profile — the specific, detailed description of the type of customer who gets the most value from your product, has the highest LTV, and is most likely to refer others.'}
+           ]
+          },
+          {tag:'STEP 02',title:'Content & Distribution',
+           insight:'Content without distribution is noise. Distribution without content is interruption. The compound advantage belongs to the brand that publishes high-quality, deeply relevant content through the specific channels where their ideal customer already spends time — consistently, for years. The platform selection rule: maximum two primary channels, chosen based on where your paying customer actually lives, not where you prefer to spend time.',
+           details:['Content pillar system: 3–4 thematic territories your brand owns — at the intersection of customer interest and your authority','Platform selection: choose based on where your ICP consumes content, not where you\'re comfortable — maximum 2 primary','Content calendar: 60 days planned in advance with format, platform, message, owner, and intended user action per piece','SEO content funnel: informational (awareness) → commercial (evaluation) → transactional (conversion) content mapped','Community seeding: identify 10 communities, contribute genuine value for weeks before ever mentioning the product'],
+           abbrs:[
+             {term:'SEO Content Funnel',def:'A three-stage content strategy mapping to buyer stages: Informational (problem-aware, not solution-aware), Commercial (evaluating options), Transactional (ready to buy, seeking final confirmation).'},
+             {term:'Topical Authority',def:'The degree to which a search engine recognizes your domain as a credible, deep, comprehensive resource on a specific subject — built by publishing consistently within defined content pillars.'}
+           ]
+          },
+          {tag:'STEP 03',title:'Sales & Conversion Strategy',
+           insight:'The sales motion is the mechanism by which your product moves from stranger to paying customer. Every element — how you find prospects, how you qualify them, how you build trust, how you handle objections, how you close — must be documented, tested, and systematically improved. The first 10 customers should be named accounts before launch begins. Paul Graham of Y Combinator: "do things that don\'t scale." The non-scalable hustle of the first 10 is what makes everything after it scalable.',
+           details:['Sales motion design: self-serve (no human needed), assisted (human closes inbound intent), or enterprise (human-led outbound)','Objection library: top 7 objections with structured responses — acknowledge → reframe → ask for next step','Proposal / pitch deck: problem → solution → proof → ROI → one clear ask — in that sequence, every time','First 10 customers plan: named accounts, named contacts, named outreach approach — before launch day','CRM setup: pipeline stages, lead scoring criteria, follow-up cadence documented — not improvised per deal'],
+           abbrs:[
+             {term:'B2B',def:'Business to Business — selling products or services to other companies rather than to individual consumers.'},
+             {term:'ROI',def:'Return on Investment — the financial return relative to the cost of an investment. In sales: "if you pay $X for our product, you get $Y back" — the math that makes decisions obvious.'},
+             {term:'CRM',def:'Customer Relationship Management — software that tracks every interaction with every prospect and customer. Pipeline stages define the buyer journey from lead to closed.'},
+             {term:'AE',def:'Account Executive — a salesperson dedicated to managing relationships with specific accounts, particularly in enterprise selling where the relationship spans months.'}
+           ]
+          },
+          {tag:'STEP 04',title:'KPI Dashboard Design',
+           insight:'What gets measured gets managed — but measuring the wrong things creates a dangerous illusion of understanding. The discipline of KPI design is selecting the minimum set of metrics that genuinely predict business health. The North Star Metric is the one number that best captures core value delivery to customers — not revenue (that\'s an outcome), but the behavior that causes revenue to follow. Cohort analysis is non-negotiable: looking at all customers together masks whether you are improving or deteriorating.',
+           details:['North Star Metric: the single number that captures value delivery — if it grows, the business grows; if it flatlines, no acquisition spend will save you','Input metrics: the 3–5 leading indicators (measured today) that predict the North Star (measured in 30–90 days)','Weekly Business Review format: what moved, why it moved, what decision does this demand, who owns it, by when','Cohort analysis: track each signup-period group independently to see whether product improvements are actually working','Reporting cadence: daily pulse (5 min) → weekly deep dive (60 min decision meeting) → monthly board narrative'],
+           abbrs:[
+             {term:'KPI',def:'Key Performance Indicator — a measurable signal of performance. Senior KPI design uses the minimum number of metrics that genuinely predict business health.'},
+             {term:'NPS',def:'Net Promoter Score — "How likely are you to recommend this to a friend?" Promoters (9–10), Passives (7–8), Detractors (0–6). Score = % Promoters minus % Detractors. Range: -100 to +100.'},
+             {term:'WBR',def:'Weekly Business Review — a structured decision-making meeting (not a reporting meeting). If you leave without a decision, the meeting failed regardless of data quality.'},
+             {term:'Cohort',def:'A group of customers sharing a common characteristic — most commonly the time period when they signed up. Cohort analysis tracks each group independently over time to isolate improvement signals.'},
+             {term:'NRR',def:'Net Revenue Retention — percentage of last period\'s revenue still held from the same customers this period, including expansion revenue. NRR > 100% means the existing base grows even without new customers.'}
+           ]
+          }
+        ],
+        outputs:{
+          internal:['Channel strategy research — where the first 100 customers are, with evidence','Why-now narrative drafts and community response testing','Partnership mapping — who, what they offer, what you offer, contact status','Launch sequence timeline with week-by-week ownership','War room protocol with named roles and escalation paths','Content pillar definitions with rationale and topic examples','Platform selection analysis — why these platforms, why not others','60-day content calendar with all assets specified','SEO content strategy — keyword clusters mapped to funnel stages','Community map — 10 communities with contribution strategy per community','Objection library — all objections collected, categorized, responses written and tested','Sales motion design decision with full rationale','CRM configuration documentation — pipeline stages, scoring, cadence','KPI framework document — North Star metric rationale, input metrics, measurement methodology','Cohort analysis framework and setup','WBR format, agenda, and decision-making protocol'],
+          external:[
+            {title:'Launch Playbook',desc:'The complete operational document for the entire launch sequence — roles, timing, content, channels, war room protocol, rollback criteria'},
+            {title:'Content Calendar — 60 Days',desc:'Ready-to-execute content plan with formats, platforms, messages, owners, and intended user actions per piece'},
+            {title:'Community Seeding Strategy',desc:'Specific communities, specific contribution plans, specific timelines, specific brand mention strategy'},
+            {title:'Sales Toolkit',desc:'Pitch deck template, proposal template, objection response guide, CRM fully configured and ready to use'},
+            {title:'Partnership Outreach Materials',desc:'Pitch emails, co-launch one-pagers, proposal templates for each identified partner type'},
+            {title:'PR Kit',desc:'Press release, company fact sheet, founder bio, high-resolution assets, journalist contact list with story angles'},
+            {title:'KPI Dashboard — Live',desc:'Real-time dashboard with North Star metric and input metrics connected to live data sources'},
+            {title:'Reporting Templates',desc:'Daily pulse view, weekly business review format, monthly board narrative template — ready to use'},
+            {title:'Launch Announcement Assets',desc:'Waitlist email, social launch posts, website update copy, press announcement — all written and ready to deploy'}
+          ]
+        }
+      },
+      {
+        name:'UX Engineering',icon:'◉',
+        intro:'The UX Engineering track at Launch builds the operational product systems — the onboarding that converts signups to activated users, the core product tested and performing, and the feedback infrastructure that makes every user interaction a learning event.',
+        steps:[
+          {tag:'STEP 01',title:'Onboarding Engineering',
+           insight:'Onboarding is the most consequential UX work in any product. The user\'s first ten minutes determine whether they stay or leave — and most who leave never return. The activation event is the specific moment a user first experiences core value. Every minute between signup and that moment is a churn risk. Time-to-value reduction — removing every unnecessary step between signup and the activation event — is often the highest-ROI product investment available, because it costs nothing to remove friction.',
+           details:['Activation event definition: the specific action that, when completed, predicts long-term retention — not "they logged in"','Time-to-value reduction: question every step between signup and activation — can it be removed, deferred, or automated?','Progressive disclosure: show only what is needed to get to first value; reveal complexity only as the user earns fluency','Empty state design: every blank screen must explain what this section does, show an example, and offer one clear action','Trigger-based email sequence: emails fire based on what the user has or has not done, not on a calendar schedule'],
+           abbrs:[
+             {term:'Activation Event',def:'The specific in-product action that, when completed, statistically predicts long-term user retention. Every onboarding decision should be evaluated by whether it helps users reach this moment faster.'},
+             {term:'Time-to-Value',def:'The elapsed time between a user signing up and them experiencing the activation moment. Every minute of elapsed time is a churn risk — minimize ruthlessly.'},
+             {term:'Progressive Disclosure',def:'The UX principle of revealing complexity only when users are ready for it. Show the minimum needed to create value first; surface depth as users develop product fluency.'},
+             {term:'Churn',def:'The rate at which customers cancel, stop paying, or stop using the product. Even small reductions in churn have compounding positive effects on total revenue over 12–18 months.'}
+           ]
+          },
+          {tag:'STEP 02',title:'Core Product UX',
+           insight:'The core product is the promise made real. Every design decision — every screen, every interaction, every error state — either reinforces trust or erodes it. Jakob Nielsen\'s research established that five users in a moderated usability test will surface approximately 85% of the meaningful usability problems in a design. After five users, you find the same problems again. The discipline: watch without helping. Their confusion is the insight. Rescuing them corrupts the data.',
+           details:['Usability testing: 5 users per round, moderated sessions, thinking-aloud protocol, no rescuing during confusion','Task success rate benchmarking for all 3 critical paths — measured before and after each design iteration','WCAG 2.1 AA accessibility audit: visual impairment, motor, cognitive, and hearing accommodation requirements','Core Web Vitals performance targets: LCP < 2.5s, FID < 100ms, CLS < 0.1 — measured in real conditions','Mobile-first review: every screen tested on actual physical devices, not emulators or browser resizing'],
+           abbrs:[
+             {term:'WCAG',def:'Web Content Accessibility Guidelines — internationally recognized standards for accessible web design. Level AA is the professional and legal minimum in most jurisdictions.'},
+             {term:'LCP',def:'Largest Contentful Paint — measures how long the largest visible element takes to appear on screen. Target: under 2.5 seconds. Affects both user experience and search ranking.'},
+             {term:'FID',def:'First Input Delay — measures the time between a user\'s first interaction and the browser\'s response. Target: under 100 milliseconds. Above 300ms feels broken.'},
+             {term:'CLS',def:'Cumulative Layout Shift — measures how much the page layout unexpectedly moves while loading. Target: under 0.1. The jarring experience of tapping a button that just shifted down the page.'}
+           ]
+          },
+          {tag:'STEP 03',title:'Conversion Optimization',
+           insight:'Conversion optimization is the engineering discipline of removing every obstacle between a user\'s intent and the action you want them to take. Baymard Institute research shows approximately 70% of checkout processes are abandoned — and the primary cause is unnecessary complexity. Every field removed, every step eliminated, every confusing label rewritten is a measurable revenue improvement. The friction audit is the most underused tool in product design.',
+           details:['Funnel visualization: quantify drop-off at every step — you cannot fix what you have not located and measured','Friction audit: question every form field, every click, every load — does this step need to happen here or at all?','A/B test roadmap: prioritized by ICE score (Impact × Confidence × Ease) — prevents testing exciting things over important things','Social proof placement: above the fold, immediately before the CTA, and on the pricing page — all three, not one','Checkout / signup flow: one page where possible, progress indicator always, no required fields that can be collected later'],
+           abbrs:[
+             {term:'ICE Score',def:'Impact × Confidence × Ease — a prioritization framework for experiments. Score each dimension 1–10, multiply. Run highest-scoring experiments first, not most exciting ones.'},
+             {term:'A/B Test',def:'A controlled experiment comparing two versions (A and B) of a design to determine which performs better. Requires statistical significance — enough traffic and time for results to be non-random.'},
+             {term:'Social Proof',def:'The psychological phenomenon where people use others\' behavior as a signal of the correct decision. In product: testimonials, customer logos, usage numbers, and case studies placed at moments of maximum purchase anxiety.'}
+           ]
+          },
+          {tag:'STEP 04',title:'Feedback Loop Systems',
+           insight:'A product without feedback loops is flying blind. The senior discipline is building multiple parallel channels — quantitative and qualitative, real-time and periodic — that continuously surface what users experience, what they want, and what is failing them. The churned customer interview is the most valuable and most avoided conversation in business. They know what you are missing. They used your product, had a real experience, and left. That information is available nowhere else.',
+           details:['In-app feedback widget: contextual (tied to the specific screen), non-interruptive (user-initiated), routed to the right team','NPS survey: automated at Day 7 (fresh impression) and Day 30 (genuine retention signal) post-activation','Feature request board: public-facing, votable — both product intelligence and trust-building with your community','Support ticket taxonomy: every ticket tagged before resolution — after 100 tickets, actionable patterns emerge','User interview program: 2 calls per week rotating across segments including churned users — the most honest feedback source'],
+           abbrs:[
+             {term:'NPS',def:'Net Promoter Score — the universal customer satisfaction metric. Promoters (9–10) recommend actively; Passives (7–8) are satisfied but quiet; Detractors (0–6) may warn others away. Score = Promoters% minus Detractors%.'},
+             {term:'Ticket Taxonomy',def:'A structured classification system for support tickets — every issue tagged by type and subcategory before resolution. After 100 tickets, patterns reveal which product areas generate the most friction.'}
+           ]
+          }
+        ],
+        outputs:{
+          internal:['Activation event definition with research rationale','Time-to-value audit — every step between signup and activation assessed','Trigger-based email sequence logic and behavioral conditions','Usability test session recordings and synthesis (min. 5 users per round)','Task success rate benchmarks for all 3 critical paths','WCAG 2.1 AA accessibility audit findings and priority fixes','Core Web Vitals baseline measurement and identified issues','Friction audit findings with priority score per friction point','ICE-scored A/B test backlog','Social proof inventory — what exists, what format, where to place it','Funnel drop-off analysis — quantified at every step','NPS survey design and trigger logic','Support ticket taxonomy structure','User interview schedule and synthesis notes','Feedback widget configuration and routing rules'],
+          external:[
+            {title:'Onboarding Flow — Live',desc:'Complete onboarding from signup to activation event, instrumented, with trigger-based email sequence active'},
+            {title:'Core Product UI',desc:'All primary screens built, usability tested, accessibility compliant, performing to Core Web Vitals targets'},
+            {title:'Optimized Landing Page',desc:'Friction removed, social proof placed strategically, funnel instrumented, conversion-optimized CTA flow'},
+            {title:'Pricing Page',desc:'Designed with social proof adjacent to price, ROI calculator if applicable, single clear CTA, trust signals visible'},
+            {title:'A/B Test Roadmap',desc:'Prioritized by ICE score, testing tooling configured, baseline conversion rates established for all key flows'},
+            {title:'In-App Feedback Widget',desc:'Live, contextual, non-interruptive, routing to correct team channels based on category'},
+            {title:'NPS Survey System',desc:'Automated, trigger-based at Day 7 and Day 30, with follow-up open question for qualitative insight'},
+            {title:'Feature Request Board',desc:'Live and publicly accessible, votable, integrated into product planning cadence'},
+            {title:'Support Ticket Taxonomy',desc:'Implemented in support tooling, tagging active, weekly reporting of pattern insights to product team'},
+            {title:'Performance Report',desc:'Core Web Vitals scores, accessibility audit results, funnel conversion rates at baseline — the measurement foundation for all future optimization'}
+          ]
+        }
+      }
+    ],
+    convergence:'The strategist defines the sales motion — self-serve, assisted, or enterprise. The UX engineer builds the onboarding flow that corresponds precisely to that motion: if self-serve, onboarding must be entirely self-explanatory because no human will be there to guide; if assisted, it can be more complex because a person runs the first session. The strategist builds the objection library and discovers price is the most common objection; the UX engineer redesigns the pricing page with social proof adjacent to the number, an ROI calculator that makes value tangible, and a restructured free trial showcasing the features that most dramatically demonstrate value. Strategy defines what matters. Engineering makes it visible, measurable, and improvable.'
+  },
+  {
+    id:'growth',number:'03',label:'GROWTH',
+    color:'#9B8EC4',tagline:'Systematize what works, eliminate what doesn\'t',
+    meaning:'Growth is not doing more of what you did at Launch. It is finding the self-reinforcing mechanisms — the loops — inside your product, market, and operations that create compounding returns. A loop is a system where the output of one cycle becomes the input of the next, making each cycle more powerful than the last. This is categorically different from a funnel, which is linear and stops. Growth phase begins only when the retention curve shows a meaningful, stable floor. Before that, no acquisition investment will fix the problem — you would be filling a leaking bucket.',
+    tracks:[
+      {
+        name:'Strategist',icon:'◈',
+        intro:'The strategy track at Growth phase builds the self-reinforcing commercial architecture — the loops, the scaled channels, the operational infrastructure, and the structural moats that make the business progressively harder to displace.',
+        steps:[
+          {tag:'STEP 01',title:'Growth Model Architecture',
+           insight:'Before investing in any growth lever, you must understand the loop that is most naturally present in how your business already works. The four types: viral loop (usage exposes non-users), content loop (content attracts users who create more content), paid loop (revenue funds more acquisition), and product loop (more users make the product better for all users). The loop you should invest in is the one that exists in embryonic form — not the one that sounds best in a presentation. You do not force a loop onto a business. You find the one trying to emerge and engineer around it.',
+           details:['Growth loop identification: viral, content, paid, or product — which loop is most naturally latent in this business?','Retention curve analysis: where does the curve flatten, at what percentage — this is your product-market fit signal','Monetization expansion: upsell triggers, cross-sell paths, expansion revenue — growing ARPU without new acquisition','Referral program design: double-sided incentive aligned with core product value, viral coefficient (K) modeled','Payback period optimization: model both levers — reduce CAC through cheaper channels or increase early LTV through annual billing'],
+           abbrs:[
+             {term:'K (Viral Coefficient)',def:'Number of referrals each customer sends × conversion rate of those referrals. K > 1.0 means the product grows on its own — each user generates more than one new user.'},
+             {term:'ARPU',def:'Average Revenue Per User — total MRR divided by number of paying customers. Growing ARPU without growing customer count is often more efficient than new customer acquisition.'},
+             {term:'Product-Market Fit',def:'The state where your product satisfies a strong market demand — evidenced by a retention curve that flattens at a meaningful percentage rather than declining toward zero.'},
+             {term:'NRR',def:'Net Revenue Retention — if NRR > 100%, your existing customer base grows in revenue even with zero new customer acquisition. Companies with NRR > 120% can grow indefinitely from existing customers alone.'}
+           ]
+          },
+          {tag:'STEP 02',title:'Channel Scaling',
+           insight:'At Growth phase, the acquisition channels that worked through hustle must be systematized, measured, and selectively scaled. Not all channels deserve capital — only those with defensible unit economics and sustainable improvement curves. The senior distinction in SEO: programmatic SEO generates hundreds of pages at scale targeting specific low-competition queries, each individually small but collectively enormous — the long tail of search is where Growth-phase companies build organic moats competitors cannot quickly replicate.',
+           details:['Paid acquisition: creative testing framework (one variable at a time), audience segmentation, bid strategy, ROAS targets by segment','SEO at scale: programmatic content opportunities, topical authority building, backlink strategy through original research','Partnership channel: affiliate program design, integration marketplace partnerships, reseller network architecture','PR & earned media: story angle bank tied to industry trends, journalist relationship database, press kit updated with growth metrics','Event and community strategy: transition from participating in others\' communities to owning one around a subject you define'],
+           abbrs:[
+             {term:'ROAS',def:'Return on Ad Spend — revenue generated per dollar spent on advertising. Whether a given ROAS is acceptable depends entirely on gross margin and payback period requirements.'},
+             {term:'Programmatic SEO',def:'Creating hundreds or thousands of pages at scale targeting specific search queries that follow consistent patterns — e.g., "best [product category] for [industry]" — to capture long-tail search traffic at scale.'},
+             {term:'Backlinks',def:'Links from other websites pointing to yours. Among the strongest authority signals to search engines — they represent another site vouching for the quality of your content.'},
+             {term:'PR',def:'Public Relations — the practice of earning media coverage without paying for placement. Senior PR pitches stories, not products — journalists write about narratives, not features.'}
+           ]
+          },
+          {tag:'STEP 03',title:'Team & Operations Design',
+           insight:'The transition from a founder-dependent machine to an institution that runs on systems and talent is the hardest operational challenge of the Growth phase. Every process that lives only in a founder\'s head is a key person risk — if that person is unavailable, the process breaks. Every SOP written is organizational resilience built. The OKR framework creates the critical connection between daily individual work and the company\'s most important priorities — without it, teams optimize locally at the expense of the whole.',
+           details:['Org design: sequence hires to revenue milestones, not to a predetermined org chart — who do you hire and in what order?','SOPs for every repeatable process: every step written so a competent new hire can execute correctly from day one','OKR framework: company → team → individual, quarterly cadence — connects daily work to highest priorities','Vendor and tool stack audit: eliminate redundancy, reduce cost, identify single-points-of-failure in operational tooling','18-month financial model: P&L, cash flow, hiring plan, scenario planning — base, upside, and downside cases'],
+           abbrs:[
+             {term:'SOP',def:'Standard Operating Procedure — a documented step-by-step description of how a process is performed. Test: can a competent new hire execute this correctly on their first week using only this document?'},
+             {term:'OKR',def:'Objectives and Key Results — Objectives are qualitative aspirational statements; Key Results are specific measurable outcomes. Developed at Intel by Andy Grove, scaled by Google.'},
+             {term:'P&L',def:'Profit and Loss statement — financial summary of revenue, costs, and resulting profit or loss over a period. The trajectory of the loss matters as much as the size.'},
+             {term:'Key Person Risk',def:'Organizational vulnerability when a critical capability, relationship, or decision is concentrated in a single individual. Investors and acquirers evaluate this as a structural fragility.'}
+           ]
+          },
+          {tag:'STEP 04',title:'Competitive Moat Building',
+           insight:'A product advantage can be copied in 90 days. A structural moat cannot be replicated without years of effort, capital, and customer relationships. Network effects are the most powerful moat: each additional user makes the product more valuable for all existing users, creating a self-reinforcing advantage that compounds with scale. The senior insight on switching costs: lock-in by value is strategically and morally superior to lock-in by annoyance — customers who stay because leaving destroys accumulated value are advocates; customers who stay because leaving is technically painful are resentful.',
+           details:['Network effect design: direct (users benefit from each other), indirect (two-sided marketplace), or data (more users = better AI)','Data moat: what proprietary behavioral data do you accumulate that competitors cannot buy or replicate without running your volume?','Switching cost engineering: integrations, historical data, team workflows, customization — lock-in by value, not by trap','Brand as moat: community ownership, trust capital, category language — if prospects describe the problem using your language, you\'ve won','IP and defensibility audit: patents, trade secrets, exclusive relationships, proprietary algorithms — documented and protected'],
+           abbrs:[
+             {term:'Network Effect',def:'When each additional user makes the product more valuable for all existing users. The most powerful competitive moat in technology because it compounds with scale.'},
+             {term:'Data Moat',def:'Proprietary data accumulated through normal business operations that competitors cannot buy, replicate, or access — enabling better models, personalization, and insights than any new entrant.'},
+             {term:'IP',def:'Intellectual Property — legal protections for innovations: patents (filed, 20-year protection), trade secrets (protected as long as kept confidential), trademarks (brand marks), copyrights (creative works).'}
+           ]
+          }
+        ],
+        outputs:{
+          internal:['Growth loop identification analysis with evidence for the identified loop type','Retention curve analysis — full cohort data, natural retention floor, interventions tested','Monetization expansion model — upsell paths, cross-sell opportunities, NRR baseline and targets','Referral program design — incentive structure, viral coefficient model, mechanics','Payback period optimization analysis — both levers modeled and compared','Paid acquisition creative testing framework and results log','SEO programmatic opportunity analysis — patterns identified, brief templates','Affiliate and integration partner pipeline','PR story angle bank — narratives developed, journalist targets identified','Community ownership plan — format, content calendar, moderation guidelines','Org design document — hiring sequence mapped to revenue milestones','SOP library — every repeatable process documented','OKR register — company, team, and individual OKRs for current quarter','18-month financial model — base, upside, and downside scenarios','Competitive moat register — network effects, data inventory, switching cost map, IP register','Defensibility audit findings'],
+          external:[
+            {title:'Growth Model Document',desc:'The identified loop type, how it works mechanically, how to measure it, and how to invest in it over the next 12 months'},
+            {title:'Retention Improvement Plan',desc:'Specific interventions ranked by expected impact on the retention curve floor, with measurement criteria'},
+            {title:'Monetization Expansion Strategy',desc:'Upsell triggers, cross-sell paths, expansion pricing architecture, NRR improvement roadmap'},
+            {title:'Referral Program — Live',desc:'Double-sided incentive mechanics live in the product, viral coefficient tracked, performance dashboard active'},
+            {title:'Paid Acquisition Playbook',desc:'Channel strategy, creative testing framework, audience segments, bid strategy, ROAS targets, weekly optimization process'},
+            {title:'SEO Content Machine',desc:'Programmatic content templates, editorial brief system, publishing workflow, topical authority roadmap'},
+            {title:'Partnership Program',desc:'Affiliate program live, integration partner pipeline active, agreements in place, performance tracked'},
+            {title:'Org Design Roadmap',desc:'Hiring plan with timing, role specifications, compensation benchmarks mapped to revenue milestones'},
+            {title:'SOP Library',desc:'Delivered as a structured internal wiki — every repeatable process documented, owned, and maintained'},
+            {title:'OKR System',desc:'Framework implemented in tooling, current quarter OKRs set at company, team, and individual levels'},
+            {title:'Financial Model',desc:'Working 18-month spreadsheet with P&L, cash flow, hiring plan, and three scenario cases'},
+            {title:'Moat-Building Roadmap',desc:'Prioritized actions to strengthen each identified moat with resource requirements and timelines'}
+          ]
+        }
+      },
+      {
+        name:'UX Engineering',icon:'◉',
+        intro:'The UX Engineering track at Growth phase transforms the product from a working tool into a compounding system — one that acquires, retains, and expands users through its architecture, learns from every interaction, and becomes progressively more valuable as usage scales.',
+        steps:[
+          {tag:'STEP 01',title:'Product-Led Growth Engineering',
+           insight:'PLG is not a feature — it is an architectural decision. The entire product must be designed so that normal usage generates acquisition events, usage data generates retention intelligence, and feature engagement generates expansion revenue. The freemium wall placement is the most consequential single UX decision in a PLG product: too early and users feel trapped before experiencing value; too late and they get everything they need for free. The ideal wall appears at a moment of peak engagement — when the user is deeply invested in an outcome and the upgrade is the most natural next step.',
+           details:['Freemium / free trial architecture: design the wall placement at peak engagement moments, not arbitrarily by feature','In-app upgrade prompts: contextual (triggered by the exact limit being hit), not scheduled, not random, never interruptive','Viral / sharing mechanics: where in the product do users produce output that can naturally be shared to non-users?','Collaboration features: multi-user workflows that expand seat count organically — invitation = expansion revenue event','Usage analytics: event taxonomy (every user action named and tracked), funnel analysis, cohort retention visible in real time'],
+           abbrs:[
+             {term:'PLG',def:'Product-Led Growth — a go-to-market strategy where the product itself drives acquisition, activation, conversion, and expansion without requiring a salesperson at each step.'},
+             {term:'Freemium Wall',def:'The point in a freemium product where a free user hits a limitation and is invited to upgrade. Must be placed at a moment of peak engagement and genuine need — not as a marketing interrupt.'},
+             {term:'Event Taxonomy',def:'A complete, structured map of every user action the product tracks — every click, page view, feature used, limit hit. Without a coherent taxonomy, analytics are noise.'},
+             {term:'Seat Expansion',def:'The mechanism by which a single-user account grows into a multi-user account — generating expansion MRR without acquiring new accounts. Collaboration features are the primary driver.'}
+           ]
+          },
+          {tag:'STEP 02',title:'Platform & Scalability',
+           insight:'Architecture decisions made under the time pressure of Foundation and Launch begin to show their limitations at Growth-phase load. Bottlenecks that were invisible at 1,000 users become production incidents at 100,000. The Growth phase requires a deliberate architectural review — not a full rewrite, but an honest audit of where the system will fail and at what load. Infrastructure cost per user is the metric that reveals whether your architecture is becoming more or less efficient as you scale.',
+           details:['Architecture review: map every component, identify bottlenecks before they become production incidents, test at 10× current load','API design: public API as a growth channel — every developer building on your API is a distribution partner','Multi-tenancy and RBAC: enterprise-ready access control with clear UI expression of permission boundaries','i18n architecture: language, currency, date formats, RTL layout, plural forms — engineer from the start, not as a retrofit','Infrastructure cost per user: track monthly, optimize before scaling — cost per user should decrease as total users grow'],
+           abbrs:[
+             {term:'API',def:'Application Programming Interface — the mechanism by which software components communicate with each other. A public API makes your platform extensible by external developers.'},
+             {term:'RBAC',def:'Role-Based Access Control — a permissions system where each user role (Admin, Editor, Viewer, Guest) has a defined set of permitted actions in the product.'},
+             {term:'i18n',def:'Internationalization (18 letters between i and n) — designing software so it can be adapted to different languages and regions without engineering changes to the core code.'},
+             {term:'CDN',def:'Content Delivery Network — a globally distributed network that serves content from locations geographically close to each user, reducing loading time regardless of physical server location.'},
+             {term:'SaaS',def:'Software as a Service — software delivered over the internet on a subscription basis, hosted by the provider rather than installed locally by the customer.'}
+           ]
+          },
+          {tag:'STEP 03',title:'Advanced Design System',
+           insight:'A design system without governance degrades into chaos. At Growth phase, you do not just maintain the system — you govern it. Token governance means one place where all design decisions are defined, changes are reviewed before implementation, and updates propagate automatically to every component. Visual regression testing catches the class of bugs that normal code tests miss entirely: the button that shifted 4px, the color that changed because a CSS variable was accidentally overridden, the font that reverted because a web font failed to load.',
+           details:['Design token governance: single source of truth, change approval process, automatic propagation to all consuming components','Component library versioning: semantic versioning (MAJOR.MINOR.PATCH) with breaking change communication and migration guides','Visual regression testing: automated screenshots before and after every code change, flagging visual diffs for human review','Dark mode and theme system: every color defined semantically ("background-primary") not literally ("white") from the token layer','Animation system: shared motion principles (duration range, easing curves), reduced-motion support for accessibility compliance'],
+           abbrs:[
+             {term:'Semantic Versioning',def:'MAJOR.MINOR.PATCH version numbers. MAJOR = breaking changes requiring updates in consuming code. MINOR = new capability, backward-compatible. PATCH = bug fixes, no behavior change.'},
+             {term:'Visual Regression',def:'An automated test that compares screenshots before and after a code change to detect unintended visual differences — catches bugs that unit and integration tests miss entirely.'},
+             {term:'CI/CD',def:'Continuous Integration and Continuous Delivery — automatically building, testing, and deploying code changes frequently and reliably. Visual regression testing is integrated here.'},
+             {term:'Reduced Motion',def:'An OS-level accessibility preference that signals the user wants minimal animation — due to vestibular disorders, seizure sensitivity, or personal preference. Products must respect this setting.'}
+           ]
+          },
+          {tag:'STEP 04',title:'Intelligence Layer',
+           insight:'At Growth phase the product must begin to learn. Personalization, churn prediction, and experimentation infrastructure are not advanced features — they are the mechanisms that allow a product at scale to deliver relevance to each individual user rather than a one-size-fits-all experience that optimally serves no one. The economic case for churn prediction is asymmetric: saving one churning customer costs dramatically less than acquiring one new customer, and reducing monthly churn by even 0.5% has compounding effects on total MRR over 18 months that often exceed equivalent acquisition investment.',
+           details:['Personalization engine: surface the right feature, content, or workflow to each user based on role, behavior history, and outcome data','Predictive churn signals: identify the behavioral signature of users about to churn — reduced frequency, shorter sessions, support spikes','AI-assisted features: apply the value vs. distraction test — does this AI feature reduce meaningful effort, or just add impressive-seeming complexity?','Search and discovery: power users need precise query matching; new users need proactive, contextual recommendations before they can form a query','Experimentation platform: feature flags (deploy without releasing), multivariate testing, staged rollouts with instant rollback capability'],
+           abbrs:[
+             {term:'Feature Flag',def:'A code switch that allows a feature to be turned on or off for specific users without deploying new code. Enables staged rollouts, A/B testing, and instant rollback without a new deployment.'},
+             {term:'Multivariate Test',def:'An experiment testing multiple variables simultaneously to identify interactions between them — more efficient than sequential A/B testing when traffic volume supports multiple concurrent variants.'},
+             {term:'Staged Rollout',def:'Gradually releasing a new feature to increasing percentages of users (1% → 5% → 25% → 100%) to detect problems at small scale before they affect all users.'}
+           ]
+          }
+        ],
+        outputs:{
+          internal:['PLG architecture decision — freemium vs. trial, wall placement rationale, upgrade trigger logic','In-app upgrade prompt variants and performance data','Viral mechanic design options with expected viral coefficient impact','Collaboration feature specifications with seat expansion model','Complete event taxonomy — every tracked user action mapped and named','Cohort retention behavioral analysis — retained vs. churned user behavioral signatures','Architecture bottleneck review findings with load projections','Public API design specification','RBAC model design for multi-user accounts','i18n architecture assessment and implementation plan','Infrastructure cost per user analysis and optimization findings','Design token governance rules and change approval process','Component library version history and breaking change log','Visual regression test suite covering all components and critical pages','Dark mode token system and implementation','Animation system principles and motion specification','Personalization engine data model and recommendation logic','Churn prediction model — behavioral signatures and intervention trigger conditions','AI feature evaluation for all candidates — value vs. distraction assessment','Search and discovery architecture specification','Feature flag configuration and experimentation platform setup'],
+          external:[
+            {title:'PLG Conversion System — Live',desc:'Freemium or trial architecture live, upgrade prompts active at peak engagement moments, viral sharing mechanics implemented'},
+            {title:'Collaboration Features — Live',desc:'Multi-user workflows live, seat expansion tracked, per-seat billing instrumented and reportable'},
+            {title:'Analytics Product Dashboard',desc:'Event taxonomy implemented, funnel analysis live, cohort retention visible in real time, accessible to product and growth teams'},
+            {title:'Public API + Developer Portal',desc:'Documented, versioned, with interactive documentation and developer onboarding guide live'},
+            {title:'Advanced Design System',desc:'Token governance implemented, component library versioned, visual regression testing in CI/CD pipeline'},
+            {title:'Dark Mode — Live',desc:'Semantic token system implemented, dark mode live across all product surfaces, respects OS-level preference'},
+            {title:'Personalization Engine — Live',desc:'Serving different feature emphasis and content to different user segments based on behavioral data'},
+            {title:'Churn Intervention System — Live',desc:'Behavioral churn signals monitored, intervention triggers active, CS team notified for high-risk accounts'},
+            {title:'Search and Discovery — Implemented',desc:'Across all content surfaces, with precision search for power users and contextual recommendations for new users'},
+            {title:'Experimentation Platform — Live',desc:'Feature flag system operational, A/B testing infrastructure active, multivariate testing capability available'},
+            {title:'Infrastructure Optimization Report',desc:'Cost per user reduced, right-sizing implemented, projections for the next 10× growth validated architecturally'}
+          ]
+        }
+      }
+    ],
+    convergence:'The strategist identifies from retention analysis that Day 30 retention is the constraint. The UX engineer investigates behavioral data and finds that 55% of users who churn before Day 30 never used Feature X — known from qualitative research to be the feature most correlated with long-term engagement. Feature X becomes a mandatory onboarding step. Day 30 retention improves materially. The UX engineer\'s personalization engine discovers that users with three or more integrations have 2.4× higher LTV. The strategist redesigns the pricing model to capture more value from that use case. Engineering insight becomes pricing strategy. Growth is the phase where the two tracks stop being parallel and start being inseparable — every strategic decision has a UX implication, and every UX finding has a strategic consequence.'
+  },
+  {
+    id:'scale',number:'04',label:'SCALE',
+    color:'#D4756B',tagline:'Multiply across markets, segments & structure',
+    meaning:'Scaling without architectural readiness does not multiply success — it multiplies problems. Every inefficiency, every broken process, every product fragility that was tolerable at 1,000 customers becomes catastrophic at 100,000. The senior definition of Scale is building the systems, structures, capital arrangements, and organizational capabilities that allow the business to grow by an order of magnitude — ten times, not ten percent — without requiring a proportional increase in founders\' time, management attention, or operational overhead. Most businesses fail not because they could not grow, but because they grew fast and built nothing beneath the growth to hold it up.',
+    tracks:[
+      {
+        name:'Strategist',icon:'◈',
+        intro:'The strategy track at Scale builds the institutional infrastructure — the geographic playbooks, the capital architecture, the brand at scale, and the exit optionality that transforms a successful business into a durable institution.',
+        steps:[
+          {tag:'STEP 01',title:'Strategic Scaling Plan',
+           insight:'The Ansoff Matrix is the senior map for where growth can come from and how much risk each direction carries. Market Penetration (existing product, existing market) is the lowest-risk quadrant and should be exhausted before moving. Market Development (existing product, new market) carries geographic and cultural risk. Product Development (new product, existing market) carries product risk but leverages existing relationships. Diversification (new product, new market) is the highest-risk quadrant and at Scale is approached through acquisition, not organic development.',
+           details:['Ansoff matrix evaluation: sequence the four quadrants deliberately — exhaust penetration before committing to development or diversification','Geographic expansion playbook: sequence markets by regulatory ease × TAM — not by size alone, but by the product of size and navigability','Enterprise motion build: SE (Solutions Engineer), AE (Account Executive), CS (Customer Success), legal review, SOC 2 certification roadmap','Vertical expansion: select verticals by density (enough customers), accessibility (reachable channels), and expansion potential (adjacent verticals)','Build vs. buy vs. partner: evaluate each capability gap — build when it\'s core to your moat, buy when speed matters, partner when it\'s adjacent'],
+           abbrs:[
+             {term:'Ansoff Matrix',def:'A strategic framework (Igor Ansoff, 1957) plotting growth directions on a 2×2 grid: Market Penetration, Market Development, Product Development, Diversification — each with increasing risk.'},
+             {term:'SE',def:'Solutions Engineer — a technical sales role that handles detailed product discovery, custom integration questions, and proof-of-concept work during the enterprise sales process.'},
+             {term:'CS',def:'Customer Success — the post-sale function managing ongoing customer relationships, driving adoption, preventing churn, and creating expansion revenue through trust and value delivery.'},
+             {term:'SOC 2',def:'Service Organization Control 2 — a widely recognized security compliance certification required by enterprise procurement teams before signing significant contracts. Type II covers a minimum 6-month audit period.'},
+             {term:'SMB',def:'Small and Medium-sized Businesses — companies that are not large enterprises. Moving upmarket from SMB to enterprise is a common and consequential strategic decision at Scale phase.'}
+           ]
+          },
+          {tag:'STEP 02',title:'Capital & Investor Strategy',
+           insight:'Capital at Scale buys leverage — the ability to enter markets, acquire companies, hire senior leaders, and build infrastructure that is disproportionately expensive to build but disproportionately valuable once built. The fundraising narrative sequence matters: traction first (the business is real and working), then market (the opportunity is large and defensible), then team (these specific people can execute), then vision (here is where this is going) — in that exact order. Investors who are not yet convinced by traction will not be moved by vision.',
+           details:['Fundraising narrative: traction → market → team → vision — lead with proof, not with vision, every time','Investor targeting: Tier 1 leads for signal effect, strategics for distribution access, angels for domain expertise — all mapped to stage','Data room preparation: 15 core documents complete before first investor conversation — not assembled under due diligence time pressure','Term sheet key terms: pre-money valuation (determines dilution), pro-rata rights (future round participation), board composition (the most consequential long-term term)','Alternative capital paths: RBF (non-dilutive, revenue-linked repayment), venture debt (interest not equity), grants (non-dilutive, sector-specific)'],
+           abbrs:[
+             {term:'IPO',def:'Initial Public Offering — listing company shares on a public stock exchange. Provides the largest potential liquidity and highest profile, but subjects the company to SEC reporting, quarterly public expectations, and continuous shareholder scrutiny.'},
+             {term:'PE',def:'Private Equity — investment firms that acquire controlling or majority stakes in companies, typically operating on a 5–7 year fund lifecycle with defined exit requirements.'},
+             {term:'RBF',def:'Revenue-Based Financing — capital provided in exchange for a percentage of future revenue until a predetermined repayment cap is reached. Non-dilutive. Repayment scales with revenue.'},
+             {term:'Due Diligence',def:'The process by which an investor verifies the claims made during fundraising before committing capital. A well-organized, proactively complete data room accelerates this process significantly.'},
+             {term:'Pro-rata Rights',def:'The right of existing investors to participate in future funding rounds at a level proportional to their current ownership, maintaining their percentage against dilution.'},
+             {term:'ACV',def:'Average Contract Value — the average annual revenue per customer. Enterprise motion increases ACV dramatically, improving unit economics and reducing churn through multi-year contracts.'},
+             {term:'SEC',def:'Securities and Exchange Commission — the US government body regulating public company financial disclosures and investor protection.'}
+           ]
+          },
+          {tag:'STEP 03',title:'Brand at Scale',
+           insight:'At Scale, brand becomes infrastructure. The brand architecture decision — masterbrand (branded house, everything under one name like Apple) vs. house of brands (separate identities, invisible parent like P&G) — determines whether new products inherit trust or must build it from zero. Category creation is the highest-leverage brand strategy available: when you define the problem in your language before competitors do, prospects who describe the problem using your language will find your solution first, always.',
+           details:['Brand architecture decision: masterbrand (shared equity, one family) vs. house of brands (separate identities, maximum audience precision) — with documented rationale','Category creation strategy: define the problem in new language before competitors, then own that language in content, PR, and analyst briefings','Analyst relations: Gartner Magic Quadrant, Forrester Wave, G2 Leader positioning — being placed in the right report changes enterprise procurement dynamics','Executive thought leadership: each leader\'s defined point of view, content calendar, speaking pipeline, and metrics — run as rigorously as any product launch','Crisis communication playbook: spokesperson assignment, approval chains, response timing standards, rollback language — written before any crisis occurs'],
+           abbrs:[
+             {term:'Branded House',def:'Brand architecture where all products share one master brand name and identity (e.g., Apple iPhone, Apple Watch, Apple Mac). New products inherit existing brand trust immediately.'},
+             {term:'House of Brands',def:'Brand architecture where each product has its own independent identity and the parent company is invisible to consumers (e.g., Procter & Gamble owning Tide, Pampers, Gillette separately).'},
+             {term:'Gartner Magic Quadrant',def:'An analyst framework rating technology vendors on Completeness of Vision and Ability to Execute. Appearing in the Leaders quadrant is a significant enterprise sales asset.'},
+             {term:'G2',def:'A peer review platform for B2B software, weighted by verified user reviews. High G2 ratings appear in software comparison searches that enterprise buyers use during vendor evaluation.'},
+             {term:'Analyst Relations',def:'The function managing relationships with industry research firms (Gartner, Forrester, IDC) whose reports influence enterprise buying decisions and shape market perception.'}
+           ]
+          },
+          {tag:'STEP 04',title:'Exit & Long-Term Value',
+           insight:'Exit is not the end of the story — it is the mechanism by which founders, employees, and investors realize the value they built, and the beginning of what the institution becomes. Senior founders think about exit not as an event to rush toward but as an option to preserve, optimize, and exercise at the moment of maximum value. EBITDA margin pathway is not a future conversation — the gross margin decisions made at Growth phase determine the EBITDA ceiling at Scale. Succession planning is the most neglected and most important organizational investment a founder makes.',
+           details:['Exit optionality: IPO readiness assessment, strategic acquirer map (who would benefit most from acquiring you and why), PE criteria evaluation','EBITDA margin pathway: identify gross margin expansion levers and operational leverage points — where costs grow slower than revenue','Board construction: independent directors with relevant scale experience, committee structure (Audit, Compensation, Governance), governance protocol','Succession planning: key person risk register, internal candidate development, institutional knowledge documentation — not reactive, always ongoing','Mission alignment review: do the decisions being made at scale — markets, capital, products — still serve the original why, or has scale displaced the mission?'],
+           abbrs:[
+             {term:'EBITDA',def:'Earnings Before Interest, Taxes, Depreciation, and Amortization — the most widely used proxy for operational profitability in business valuation, isolating the cash-generating power of core operations.'},
+             {term:'EBITDA Margin',def:'EBITDA as a percentage of revenue. A 20% EBITDA margin on $100M revenue = $20M in operational profit. This ratio is the primary valuation multiple driver in most exit scenarios.'},
+             {term:'Operational Leverage',def:'The phenomenon where revenue grows faster than costs at scale, because many costs are fixed. Engineering more operational leverage is how Scale-phase companies improve margins while continuing to grow.'},
+             {term:'Succession Planning',def:'Identifying and developing internal candidates for key leadership roles before those roles become vacant. The absence of succession planning is a key person risk that reduces valuation multiples.'}
+           ]
+          }
+        ],
+        outputs:{
+          internal:['Ansoff matrix evaluation — all four quadrants assessed for this specific business','Geographic market evaluation matrix — candidate markets scored by regulatory ease × TAM','Enterprise motion requirements analysis — product, sales, legal, and support additions required','Vertical expansion evaluation — candidate verticals scored by density, accessibility, and expansion potential','Build-buy-partner analysis for each major capability gap','Fundraising narrative drafts and investor response notes','Investor target list — tiered, with contact intelligence and warm introduction paths','Data room — all 15 documents complete and current','Term sheet comparison analysis — all terms evaluated, trade-offs documented','Alternative capital path analysis — RBF, debt, grants evaluated against equity cost','Brand architecture options — masterbrand vs. house of brands evaluated','Category creation narrative — drafts and market response data','Analyst relations contact database — analysts identified, relationship status, briefing history','Executive thought leadership content archive per leader','Crisis communication playbook — all scenario types with named owners','Exit optionality map — IPO readiness assessment, acquirer list, PE criteria','EBITDA margin pathway model — expansion levers identified','Board meeting minutes and decision register','Succession plan — key person risk register and internal candidate assessments','Mission alignment review findings'],
+          external:[
+            {title:'Strategic Scaling Plan',desc:'Full document: Ansoff sequencing, market selection rationale, motion design, three-year horizon with milestones'},
+            {title:'Geographic Expansion Playbook',desc:'Per-market entry plans with GTM, localization, legal entity, hiring sequence, and regulatory navigation'},
+            {title:'Enterprise GTM Package',desc:'Sales motion design, AE/SE hiring plan, CS framework, SOC 2 certification roadmap, enterprise pricing and contract templates'},
+            {title:'Vertical Expansion Strategy',desc:'Selected verticals with positioning, channel approach, product adaptation required, and success criteria'},
+            {title:'Fundraising Package',desc:'Narrative deck, financial model, complete organized data room, investor target list with outreach strategy and warm introduction plan'},
+            {title:'Capital Strategy Document',desc:'Equity vs. alternative paths with recommendation, rationale, dilution modeling, and timeline implications'},
+            {title:'Brand Architecture Document',desc:'The decision made with rationale, portfolio implementation guidelines, and naming conventions going forward'},
+            {title:'Category Creation Playbook',desc:'The language, the narrative, the content and PR strategy, and the analyst relations plan to own the category'},
+            {title:'Thought Leadership Program',desc:'Each executive\'s platform defined, content calendar, speaking pipeline, and metrics for the next 12 months'},
+            {title:'Crisis Communication Playbook',desc:'Live, accessible document with named owners, approval chains, response templates, and rollback language for each scenario type'},
+            {title:'Exit Readiness Assessment',desc:'Where the company stands against IPO, acquisition, and PE criteria with gap analysis and remediation roadmap'},
+            {title:'Board Governance Package',desc:'Board composition recommendation, committee charters, meeting cadence and format, decision rights matrix'}
+          ]
+        }
+      },
+      {
+        name:'UX Engineering',icon:'◉',
+        intro:'The UX Engineering track at Scale builds the institutional product infrastructure — enterprise-grade systems, multi-product architecture, reliability at the level that SLA contracts demand, and the research and innovation programs that ensure the product remains competitive as the world changes.',
+        steps:[
+          {tag:'STEP 01',title:'Enterprise UX',
+           insight:'Enterprise UX is a fundamentally different design problem from consumer UX. You are not designing for one person\'s delight — you are designing for an entire organization\'s adoption, compliance, and operational continuity. A single failure at the admin layer — a permissions error exposing data, a missing audit log failing a compliance audit — can terminate an enterprise contract worth hundreds of thousands of dollars. Enterprise buyers evaluate admin consoles as carefully as end-user interfaces, sometimes more carefully.',
+           details:['Admin console: user management, bulk operations (CSV import, API provisioning), billing, SSO integration, audit logs — all required, not optional','RBAC design: every role, every permission, every edge case documented — permission boundaries expressed clearly in the UI, not just enforced in the backend','White-label architecture: every color, logo, domain — configuration values not hardcoded, custom domain SSL provisioned automatically','Compliance UI: GDPR data export (right to portability), deletion flows (right to be forgotten), consent management — legally mandatory in many jurisdictions','Enterprise onboarding: structured multi-week implementation with milestone tracking, administrator training, and dedicated onboarding specialist support'],
+           abbrs:[
+             {term:'SSO',def:'Single Sign-On — authentication allowing enterprise users to log in once with their corporate identity and access all connected applications. Enterprise IT requires this to centralize access control.'},
+             {term:'GDPR',def:'General Data Protection Regulation — the EU\'s comprehensive data privacy law. Companies processing EU resident data must provide data export, deletion rights, and explicit consent mechanisms regardless of where they are based.'},
+             {term:'HIPAA',def:'Health Insurance Portability and Accountability Act — US law governing the privacy of medical information. Required compliance for any product handling health data.'},
+             {term:'SSL/TLS',def:'Secure Sockets Layer / Transport Layer Security — the encryption protocol between browser and server. Indicated by the padlock in the browser address bar. Required for all domains, especially custom enterprise domains.'},
+             {term:'Audit Log',def:'An immutable, time-stamped record of every significant action in the system — who did what, when, from where. Required by most enterprise procurement teams and all regulated industry compliance frameworks.'}
+           ]
+          },
+          {tag:'STEP 02',title:'Multi-Product Architecture',
+           insight:'Multi-product architecture is where the accumulated technical decisions of all previous phases either compound into capability or compound into constraint. Products built on a shared design system, shared data model, and shared authentication feel like one coherent platform. Products that were not planned for multi-product feel like a bundle of acquisitions — uncomfortable to use and expensive to maintain. The investment in shared foundations at earlier phases pays the most visible dividend here.',
+           details:['Unified navigation: consistent global nav layer across all products — moving between products feels like moving between rooms, not between buildings','Cross-product SSO: OAuth or SAML implemented so session, permissions, and preferences follow the user seamlessly across products','Shared data model: the same entity (customer, project, contact) exists once across all products — updates propagate, data silos are structurally impossible','Micro-frontend evaluation: independently deployable product sections for team autonomy — each team deploys without coordinating risk with others','Platform API: your own products consume what you offer to third parties — the internal/external API is the same, eliminating drift'],
+           abbrs:[
+             {term:'OAuth',def:'Open Authorization — an open standard for access delegation, widely used for SSO implementations. Allows "Log in with [Provider]" flows and cross-application authentication.'},
+             {term:'SAML',def:'Security Assertion Markup Language — an enterprise-standard XML-based protocol for SSO. Older than OAuth but still dominant in enterprise IT environments, particularly with legacy identity providers.'},
+             {term:'Micro-Frontend',def:'An architectural pattern applying microservices philosophy to the frontend: each product section is independently deployable, owned by one team, composed into a unified UI at runtime.'},
+             {term:'Data Silo',def:'When each product maintains its own isolated data store, requiring manual export-import to share data between products. Creates inconsistencies and is the primary source of enterprise frustration in multi-product environments.'}
+           ]
+          },
+          {tag:'STEP 03',title:'Quality & Reliability at Scale',
+           insight:'Reliability is a feature — and at Scale, it is an enterprise obligation. An outage is not a technical inconvenience; it is a breach of SLA contracts, a trigger for contract termination, a public credibility event, and a leadership distraction that costs more in organizational attention than the engineering cost of prevention ever would. Blameless post-mortems are one of the most important cultural practices at Scale: when engineers fear blame for incidents, they hide information; when the culture is blameless, incidents are learning opportunities and the system gets more reliable over time.',
+           details:['E2E test coverage: automated browser tests for every critical user path integrated into CI/CD — a failing test blocks deployment entirely','Observability stack: frontend error tracking (Sentry), RUM, synthetic monitoring — all three together, not one or two','Incident runbooks: documented step-by-step resolution procedure for every known incident type — any competent engineer resolves without the original expert present','Blameless post-mortem process: after every significant incident — what happened, timeline, root cause, systemic fix — no blame, only system improvement','Chaos engineering: deliberately introducing failures in production-like environments to find weaknesses before they find customers'],
+           abbrs:[
+             {term:'E2E Testing',def:'End-to-End testing — automated browser simulation of complete user journeys from signup to key outcomes. Tools: Playwright, Cypress. Catches integration bugs that unit tests miss.'},
+             {term:'SLA',def:'Service Level Agreement — a contractual commitment about service quality. Common: 99.9% uptime (8.7 hours downtime/year maximum), response time for support, data recovery time.'},
+             {term:'RUM',def:'Real User Monitoring — tracking actual performance metrics from real users on real devices in production, rather than in a controlled test environment. Reveals how performance varies across your actual user base.'},
+             {term:'Blameless Post-mortem',def:'A structured incident review focused on system failures and process gaps — not on individual errors. The absence of blame enables psychological safety, which produces more honest and actionable root cause analysis.'},
+             {term:'Chaos Engineering',def:'The practice of deliberately introducing failures (killing services, saturating connections) to discover system weaknesses before they manifest as unplanned production incidents. Pioneered by Netflix\'s Chaos Monkey.'}
+           ]
+          },
+          {tag:'STEP 04',title:'Future-Proofing & Innovation',
+           insight:'The organization that only optimizes its present state is engineering its own obsolescence. Future-proofing is not about predicting the future — it is about building the structural capability to respond to futures you cannot predict. Innovation sprints require one non-negotiable rule: participants are completely excused from normal responsibilities during the sprint. Partial attention produces zero genuine innovation. The cognitive mode required for 0-to-1 work — creating something from nothing — is structurally incompatible with the operational mode of maintaining and improving what exists.',
+           details:['Design research program: a permanent, funded, staffed function running short-term (specific decisions), medium-term (usage pattern evolution), and long-term (horizon) research simultaneously','Innovation sprints: ring-fenced quarterly time — cross-functional team, fully excused from normal work, explicitly speculative, no customer commitment required for output','Emerging paradigm evaluation: voice interfaces, spatial computing (AR/VR), AI-native UX — deliberate assessment on a documented framework, not reaction to hype','Open source strategy: identify what to open source (infrastructure tooling, SDKs, design system) vs. what to keep proprietary (core product, competitive algorithms)','Tech debt governance: 15–20% of every sprint capacity allocated, formally tracked in a debt register, reported quarterly at the same level as the product roadmap'],
+           abbrs:[
+             {term:'0-to-1',def:'Creating something from nothing — the qualitative difference between going from zero to one (invention) vs. one to two (improvement). Term from Peter Thiel\'s "Zero to One." Requires protected time and different cognitive mode.'},
+             {term:'AR',def:'Augmented Reality — overlaying digital elements on the physical world through a device\'s camera or smart glasses. Relevant for enterprise workflows involving physical spaces, objects, or remote collaboration.'},
+             {term:'VR',def:'Virtual Reality — replacing the physical world with a fully digital environment. Most current enterprise applications: training, design review, immersive collaboration.'},
+             {term:'Tech Debt Register',def:'A documented inventory of all known areas of technical fragility, outdated code, or architectural compromise — with risk ratings, remediation priority, and quarterly allocation of engineering capacity to address them.'}
+           ]
+          }
+        ],
+        outputs:{
+          internal:['Admin console requirements gathered from enterprise customer interviews and procurement reviews','RBAC model — all roles, all permissions, all edge cases documented','White-label configuration architecture specification','Compliance requirements register — GDPR, HIPAA, SOC 2, ISO 27001, PCI DSS assessed per target market','Enterprise onboarding journey map — all steps, all stakeholders, all decision points','Unified navigation architecture specification across the full product suite','OAuth and SAML integration design','Shared data model documentation across all products','Micro-frontend architecture evaluation — decision and rationale documented','E2E test coverage map — all critical paths identified, test status per path','Observability stack configuration — error tracking, RUM, synthetic monitoring setup','Incident runbook library — all known incident types with step-by-step resolution','On-call rotation schedule and escalation protocol','Chaos engineering exercise findings and remediation actions','Status page configuration and incident communication templates','Design research program structure — team, methodology, cadence, insight distribution','Innovation sprint retrospectives — prototypes built, investment decisions made','Emerging paradigm evaluation reports — voice, spatial, AI-native assessments','Open source strategy assessment — what to release, what to keep, community plan','Tech debt register — full inventory, risk rating, priority, quarterly allocation plan'],
+          external:[
+            {title:'Enterprise Admin Console — Live',desc:'User management, SSO integration, bulk operations, billing, audit logs — all operational for enterprise accounts'},
+            {title:'RBAC System — Live',desc:'Role-based permissions across all product surfaces, with clear UI expression of boundaries and self-service access requests'},
+            {title:'White-Label System — Live',desc:'Configuration UI for enterprise customers, custom domain support, SSL provisioned automatically, branding applied across the product'},
+            {title:'Compliance Package',desc:'GDPR data export and deletion flows live, consent management active, SOC 2 audit-ready documentation, applicable certifications in progress'},
+            {title:'Enterprise Onboarding System',desc:'Guided setup flow, implementation milestone tracking, administrator training materials, dedicated specialist support process'},
+            {title:'Unified Navigation — Live',desc:'Consistent global navigation across all products, seamless context switching, session continuity across the full suite'},
+            {title:'Cross-Product SSO — Live',desc:'OAuth or SAML implemented, user moves between products without re-authentication, preferences follow them seamlessly'},
+            {title:'Shared Data Layer — Live',desc:'Single entity model across all products, real-time propagation of updates, data silos eliminated structurally'},
+            {title:'E2E Test Suite',desc:'Complete automated test coverage, integrated into CI/CD, blocking deployments on failure — zero failing tests reach production'},
+            {title:'Observability Stack — Live',desc:'Error tracking, RUM, and synthetic monitoring all active with alerting configured and on-call rotation assigned'},
+            {title:'Incident Response Infrastructure',desc:'Runbooks complete, on-call rotation live, public status page accessible, post-mortem process institutionalized'},
+            {title:'Design Research Program — Live',desc:'Continuous studies running, insights distributed to product teams on a regular cadence, reported at executive level quarterly'},
+            {title:'Tech Debt Roadmap',desc:'Documented, prioritized, allocated into sprint cadence, reported quarterly alongside the product feature roadmap'}
+          ]
+        }
+      }
+    ],
+    convergence:'At Scale, strategy and UX engineering are no longer parallel tracks — they are inseparable. The strategist decides to pursue enterprise upmarket; the UX engineer builds the admin console, RBAC system, SSO integration, and audit logging that make enterprise procurement possible — without the engineering, the strategic motion is a plan without execution. The observability stack built by engineering surfaces that a significant enterprise user segment experiences performance degradation in a target geographic market; the strategist evaluates whether the TAM justifies regional infrastructure investment; the decision is made; a market previously inaccessible becomes viable. The innovation sprint prototype becomes the basis for a strategic decision to redefine the product category. Past technical discipline enables present strategic flexibility. The institution runs because both disciplines have been built to their fullest expression — and they compound each other.'
+  }
+];
+
+/* ═══════════════════════════════════════════════════
+   GLOSSARY — all abbreviations collected
+═══════════════════════════════════════════════════ */
+const GLOSSARY = {};
+D.forEach(ph => ph.tracks.forEach(tr => tr.steps.forEach(st => {
+  (st.abbrs||[]).forEach(a => { GLOSSARY[a.term] = a.def; });
+})));
+
+/* ═══════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════ */
+let activePhase = 0;
+let activeTrack = {};
+let expandedStep = {};
+let menuOpen = false;
+
+/* ═══════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════ */
+function hex2rgba(h,a){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return `rgba(${r},${g},${b},${a})`}
+
+function scrollToPhase(i){
+  const el=document.getElementById('phase-'+D[i].id);
+  if(el){el.scrollIntoView({behavior:'smooth',block:'start'});}
+  activePhase=i; renderNav();
+}
+
+function goTrack(phaseIdx,trackIdx){
+  activeTrack[phaseIdx]=trackIdx;
+  expandedStep[phaseIdx+'_'+trackIdx]=null;
+  renderPhaseContent(phaseIdx);
+}
+
+function toggleStep(phaseIdx,trackIdx,stepIdx){
+  const key=phaseIdx+'_'+trackIdx+'_'+stepIdx;
+  expandedStep[key]=expandedStep[key]===stepIdx?null:stepIdx;
+  renderPhaseContent(phaseIdx);
+}
+
+function toggleMob(){menuOpen=!menuOpen;document.getElementById('mob-drop').classList.toggle('open',menuOpen);document.getElementById('hmb').textContent=menuOpen?'✕':'☰';}
+function closeMob(){menuOpen=false;document.getElementById('mob-drop').classList.remove('open');document.getElementById('hmb').textContent='☰';}
+function openGloss(){document.getElementById('gloss-overlay').classList.add('open');}
+function closeGlossBtn(){document.getElementById('gloss-overlay').classList.remove('open');}
+function closeGloss(e){if(e.target===document.getElementById('gloss-overlay'))closeGlossBtn();}
+
+/* ═══════════════════════════════════════════════════
+   INTERSECTION OBSERVER — update active phase on scroll
+═══════════════════════════════════════════════════ */
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const idx = D.findIndex(p=>'phase-'+p.id===e.target.id);
+      if(idx>=0){activePhase=idx;renderNav();}
+    }
+  });
+},{threshold:0.15,rootMargin:'-58px 0px 0px 0px'});
+
+/* ═══════════════════════════════════════════════════
+   RENDER NAV
+═══════════════════════════════════════════════════ */
+function renderNav(){
+  const p=D[activePhase];
+  // Header tabs
+  document.getElementById('hdr-nav').innerHTML=D.map((ph,i)=>`
+    <button class="hdr-tab ${i===activePhase?'active':''}"
+      style="${i===activePhase?`background:${ph.color};border-color:${ph.color};`:''}"
+      onclick="scrollToPhase(${i})">${ph.number} ${ph.label}</button>
+  `).join('');
+  // Mobile dropdown
+  document.getElementById('mob-drop').innerHTML=D.map((ph,i)=>`
+    <button class="drop-item ${i===activePhase?'active':''}"
+      style="color:${i===activePhase?ph.color:'#555'};border-left-color:${i===activePhase?ph.color:'transparent'};"
+      onclick="scrollToPhase(${i});closeMob()">
+      <span style="font-family:var(--mono);font-size:8px;color:${ph.color}">${ph.number}</span>${ph.label}
+    </button>
+  `).join('');
+  // Sidebar
+  let sb=`<div class="sb-label">Phases</div>`;
+  D.forEach((ph,i)=>{
+    sb+=`<button class="sb-phase-btn ${i===activePhase?'active':''}"
+      style="${i===activePhase?`border-left-color:${ph.color};color:${ph.color};`:''}"
+      onclick="scrollToPhase(${i})">
+      <span class="sb-num">${ph.number}</span>${ph.label}
+    </button>`;
+  });
+  sb+=`<div class="sb-label" style="margin-top:8px">Tracks</div>`;
+  const curPh=D[activePhase];
+  curPh.tracks.forEach((tr,ti)=>{
+    const at=activeTrack[activePhase]||0;
+    sb+=`<button class="sb-track-btn ${ti===at?'active':''}"
+      onclick="goTrack(${activePhase},${ti})">
+      ${tr.icon} ${tr.name}
+    </button>`;
+  });
+  document.getElementById('sidebar-inner').innerHTML=sb;
+  // Hamburger color
+  document.getElementById('hmb').style.borderColor=menuOpen?p.color:'var(--border2)';
+  document.getElementById('hmb').style.color=menuOpen?p.color:'#666';
+}
+
+/* ═══════════════════════════════════════════════════
+   RENDER PHASE CONTENT (track+steps+outputs)
+═══════════════════════════════════════════════════ */
+function renderPhaseContent(pi){
+  const ph=D[pi];
+  const at=activeTrack[pi]||0;
+  const container=document.getElementById('pc-'+ph.id);
+  if(!container) return;
+
+  let html=``;
+  // Track tabs
+  html+=`<div class="track-tabs">`;
+  ph.tracks.forEach((tr,ti)=>{
+    html+=`<button class="track-tab ${ti===at?'active':''}"
+      style="${ti===at?`border-bottom-color:${ph.color};color:${ph.color};`:''}"
+      onclick="goTrack(${pi},${ti})">
+      <span style="font-size:16px">${tr.icon}</span> ${tr.name.toUpperCase()}
+    </button>`;
+  });
+  html+=`</div>`;
+
+  // Track contents
+  ph.tracks.forEach((tr,ti)=>{
+    const isActive=ti===at;
+    html+=`<div class="track-content ${isActive?'active':''}">
+      <div class="track-intro-bar">
+        <span class="track-intro-icon">${tr.icon}</span>
+        <span class="track-intro-text">${tr.intro}</span>
+      </div>
+      <div class="steps-label">${tr.name} Track · ${tr.steps.length} Steps</div>`;
+
+    // Steps
+    tr.steps.forEach((st,si)=>{
+      const key=pi+'_'+ti+'_'+si;
+      const open=expandedStep[key]===si;
+      html+=`<div class="step-card ${open?'open':''}" style="border-color:${open?ph.color:'var(--border)'}">
+        <button class="step-hdr" onclick="toggleStep(${pi},${ti},${si})">
+          <div class="step-hdr-left">
+            <span class="step-tag" style="color:${ph.color}">${st.tag}</span>
+            <span class="step-title">${st.title}</span>
+          </div>
+          <span class="step-plus" style="color:${ph.color}">+</span>
+        </button>`;
+      if(open){
+        html+=`<div class="step-body">
+          <div class="step-insight">${st.insight}</div>
+          <div class="step-details">`;
+        st.details.forEach((d,di)=>{
+          html+=`<div class="step-detail">
+            <span class="detail-num" style="color:${ph.color}">${String(di+1).padStart(2,'0')}</span>
+            <span class="detail-txt">${d}</span>
+          </div>`;
+        });
+        html+=`</div>`;
+        if(st.abbrs&&st.abbrs.length){
+          html+=`<div class="abbrs-block">
+            <div class="abbrs-label">Key Abbreviations — Defined</div>`;
+          st.abbrs.forEach(a=>{
+            html+=`<div class="abbr-item"><span class="abbr-term">${a.term}</span><span class="abbr-def">${a.def}</span></div>`;
+          });
+          html+=`</div>`;
+        }
+        html+=`</div>`;
+      }
+      html+=`</div>`;
+    });
+
+    // Outputs
+    html+=`<div class="outputs-section">
+      <div class="outputs-header">
+        <div class="outputs-title">Deliverables — ${tr.name} Track</div>
+      </div>
+      <div class="outputs-grid">
+        <div class="output-col int-col">
+          <div class="output-col-hdr">
+            <span class="output-col-icon">🗄</span>
+            <span class="output-col-title">Internal Database</span>
+            <span class="output-col-sub">EVIDENCE BASE</span>
+          </div>
+          <div class="output-col-body">`;
+    tr.outputs.internal.forEach(item=>{
+      html+=`<div class="int-item"><span class="int-dot">▸</span><span>${item}</span></div>`;
+    });
+    html+=`</div></div>
+        <div class="output-col ext-col">
+          <div class="output-col-hdr" style="background:${ph.color}">
+            <span class="output-col-icon">📤</span>
+            <span class="output-col-title">External Deliverables</span>
+            <span class="output-col-sub">TO CLIENT</span>
+          </div>
+          <div class="output-col-body">`;
+    tr.outputs.external.forEach(item=>{
+      html+=`<div class="ext-item">
+        <div class="ext-item-title">${item.title}</div>
+        <div class="ext-item-desc">${item.desc}</div>
+      </div>`;
+    });
+    html+=`</div></div></div></div>`;
+
+    // Convergence (only on last track tab, inside each phase)
+    if(ti===ph.tracks.length-1){
+      html+=`<div class="convergence-section" style="border-color:${hex2rgba(ph.color,0.25)}">
+        <div class="conv-bg">⟲</div>
+        <div class="conv-label">How The Two Tracks Converge</div>
+        <div class="conv-title" style="color:${ph.color}">Strategy + UX Engineering — The Intersection Point</div>
+        <div class="conv-text">${ph.convergence}</div>
+      </div>`;
+    }
+    html+=`</div>`; // close track-content
+  });
+
+  container.innerHTML=html;
+}
+
+/* ═══════════════════════════════════════════════════
+   RENDER PIPELINE VISUAL
+═══════════════════════════════════════════════════ */
+function renderPipeline(){
+  document.getElementById('pipeline-visual').innerHTML=D.map((ph,i)=>`
+    <div class="pv-phase" style="border-color:${hex2rgba(ph.color,0.3)}" onclick="scrollToPhase(${i})">
+      <div class="pv-num" style="color:${ph.color}">${ph.number}</div>
+      <div class="pv-name" style="color:${ph.color}">${ph.label}</div>
+      <div class="pv-tagline">${ph.tagline}</div>
+      <div class="pv-flow">
+        <span class="pv-int">DB</span>
+        <span class="pv-arr">→</span>
+        <span class="pv-ext" style="background:${hex2rgba(ph.color,0.15)};color:${ph.color}">OUT</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ═══════════════════════════════════════════════════
+   RENDER PHASE SECTIONS
+═══════════════════════════════════════════════════ */
+function renderPhaseSections(){
+  document.getElementById('phase-sections').innerHTML=D.map((ph,pi)=>`
+    <section class="phase-section" id="phase-${ph.id}">
+      <div class="phase-hero">
+        <div class="phase-ghost" style="color:${ph.color}">${ph.number}</div>
+        <div class="phase-eyebrow" style="color:${ph.color}">PHASE ${ph.number} · ${pi+1} of ${D.length}</div>
+        <div class="phase-name">${ph.label}</div>
+        <div class="phase-tagline">${ph.tagline}</div>
+        <div class="phase-meaning">${ph.meaning}</div>
+        <div class="prog-bar">
+          ${D.map((_,i)=>`<div class="prog-seg ${i<=pi?'done':''}" style="${i<=pi?`background:${ph.color}`:''}" onclick="scrollToPhase(${i})"></div>`).join('')}
+        </div>
+      </div>
+      <div id="pc-${ph.id}"></div>
+    </section>
+  `).join('');
+  D.forEach((_,pi)=>renderPhaseContent(pi));
+}
+
+/* ═══════════════════════════════════════════════════
+   RENDER MASTER GRID
+═══════════════════════════════════════════════════ */
+function renderMaster(){
+  const cards=[
+    {phase:'01',color:'#C8A96E',title:'Foundation',desc:'Database = research and intelligence. Deliverables = strategy, identity, and validation plan. The brain is built before the hands move.'},
+    {phase:'02',color:'#7EB8A4',title:'Launch',desc:'Database fills with behavioral data. Deliverables become operational systems — sales toolkits, onboarding flows, feedback infrastructure.'},
+    {phase:'03',color:'#9B8EC4',title:'Growth',desc:'Database becomes a learning machine. Deliverables become compounding engines — loops, channels, PLG systems, intelligence layers.'},
+    {phase:'04',color:'#D4756B',title:'Scale',desc:'Database becomes institutional memory. Deliverables become infrastructure — things that outlast any individual and run without the founders.'}
+  ];
+  document.getElementById('master-grid').innerHTML=cards.map(c=>`
+    <div class="master-card" style="border-color:${hex2rgba(c.color,0.2)}">
+      <div class="master-card-num" style="color:${c.color}">${c.phase} — ${c.title}</div>
+      <div class="master-card-desc">${c.desc}</div>
+    </div>
+  `).join('');
+}
+
+/* ═══════════════════════════════════════════════════
+   RENDER GLOSSARY
+═══════════════════════════════════════════════════ */
+function renderGlossary(){
+  const sorted=Object.entries(GLOSSARY).sort((a,b)=>a[0].localeCompare(b[0]));
+  document.getElementById('gloss-body').innerHTML=sorted.map(([term,def])=>`
+    <div class="gloss-item">
+      <div class="gloss-item-term" style="color:var(--accent)">${term}</div>
+      <div class="gloss-item-def">${def}</div>
+    </div>
+  `).join('');
+}
+
+/* ═══════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════ */
+function init(){
+  D.forEach((_,i)=>{ activeTrack[i]=0; });
+  renderPipeline();
+  renderPhaseSections();
+  renderNav();
+  renderMaster();
+  renderGlossary();
+  // Observe phase sections
+  D.forEach(ph=>{
+    const el=document.getElementById('phase-'+ph.id);
+    if(el) io.observe(el);
+  });
+}
+
+init();
+</script>
+</body>
+</html>

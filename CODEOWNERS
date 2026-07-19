@@ -1,0 +1,19 @@
+# CODEOWNERS — courseli (merged single repo, both phases)
+
+/00-brand/                                          @alaaedeen
+/01-goals/                                          @alaaedeen @dazdaz
+/01-product/                                        @alaaedeen
+/02-missions/*/processes/logistics*                 @abdelaziz
+/02-missions/*/processes/finance*                   @abdelaziz
+/02-missions/*/processes/ai*                        @nadji
+/02-missions/*/processes/marketing*                 @souhibe
+/02-missions/strategist-track/processes/business-model-design*   @dazdaz
+/02-missions/strategist-track/processes/validation-strategy*     @alaaedeen @dazdaz
+/02-missions/strategist-track/processes/brand-architecture*      @alaaedeen @souhibe
+/02-missions/ux-engineering-track/processes/design-system*       @nadji
+/02-missions/ux-engineering-track/processes/online-presence*     @nadji @souhibe
+/brand-identity/                                    @alaaedeen @souhibe
+/framework/                                         @alaaedeen @dazdaz
+/team/dazdaz.md                                     @alaaedeen
+/team/alaaedeen.md                                  @dazdaz
+*                                                    @alaaedeen @dazdaz
