@@ -59,7 +59,7 @@ Spans both Phase 0 and Phase Infinity work. Sorted by due date.
 |---|---|---|---|---|
 | 2026-07-20 | Formalize Positioning Statement | strategist-track | pending | [formalize-positioning-statement.md](../02-missions/strategist-track/tasks/formalize-positioning-statement.md) |
 | 2026-07-20 | Founder Interview Synthesis | strategist-track | pending | [founder-interview-synthesis.md](../02-missions/strategist-track/tasks/founder-interview-synthesis.md) |
-| 2026-07-20 | Register Existing Brand Work | strategist-track | pending | [register-existing-brand-work.md](../02-missions/strategist-track/tasks/register-existing-brand-work.md) |
+| 2026-07-20 | Register Existing Brand Work | strategist-track | done | [register-existing-brand-work.md](../02-missions/strategist-track/tasks/register-existing-brand-work.md) |
 | 2026-07-21 | Formalize Tone Of Voice | strategist-track | pending | [formalize-tone-of-voice.md](../02-missions/strategist-track/tasks/formalize-tone-of-voice.md) |
 | 2026-07-21 | Market Sizing Tam Sam Som | strategist-track | done | [market-sizing-tam-sam-som.md](../02-missions/strategist-track/tasks/market-sizing-tam-sam-som.md) |
 | 2026-07-21 | Pain Point Hierarchy | strategist-track | pending | [pain-point-hierarchy.md](../02-missions/strategist-track/tasks/pain-point-hierarchy.md) |
