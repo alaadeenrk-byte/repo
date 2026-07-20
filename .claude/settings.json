@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git checkout *)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'market-sizing: mark task complete, create report *)",
+      "Bash(git push *)"
+    ]
+  }
+}
